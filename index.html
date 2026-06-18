@@ -8,273 +8,312 @@
 <title>VoleiApp</title>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.11.0/dist/tf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/pose-detection@2.1.3/dist/pose-detection.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/hand-pose-detection@2.0.1/dist/hand-pose-detection.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--navy:#0B1F3A;--nm:#142D52;--nl:#1E3F6E;--gold:#F5C518;--gd:#C49A0F;--w:#F7F9FC;--gr:#8A9BB0;--gl:#E2E8F0;--red:#E84545;--green:#2ECC71;--card:#132540;--r:16px;--rs:10px}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-height:100vh;overflow-x:hidden;padding-bottom:80px}
-.hdr{background:linear-gradient(180deg,var(--nm),var(--navy));padding:52px 20px 18px;position:relative;overflow:hidden}
-.hdr::before{content:'';position:absolute;top:-40px;right:-60px;width:200px;height:200px;border:3px solid rgba(245,197,24,.12);border-radius:50%}
-.hl{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:4px}
-.ht{font-family:'Barlow Condensed',sans-serif;font-size:38px;font-weight:900;line-height:1}
+:root{--navy:#0B1F3A;--nm:#142D52;--gold:#F5C518;--w:#F7F9FC;--gr:#8A9BB0;--gl:#E2E8F0;--red:#E84545;--green:#2ECC71;--card:#132540;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);height:100dvh;overflow:hidden;display:flex;flex-direction:column}
+/* ── HEADER ── */
+.hdr{background:linear-gradient(180deg,var(--nm),var(--navy));padding:48px 16px 12px;flex-shrink:0}
+.hl{font-family:'Barlow Condensed',sans-serif;font-size:10px;font-weight:700;letter-spacing:3px;color:var(--gold);text-transform:uppercase}
+.ht{font-family:'Barlow Condensed',sans-serif;font-size:32px;font-weight:900;line-height:1}
 .ht span{color:var(--gold)}
-.hs{font-size:13px;color:var(--gr);margin-top:6px}
-.hbar{display:flex;gap:6px;margin-top:14px}
-.hbar s{height:4px;border-radius:2px;background:var(--gold);display:block}
-.bnav{position:fixed;bottom:0;left:0;right:0;background:var(--nm);border-top:1px solid rgba(255,255,255,.07);display:flex;z-index:100;padding-bottom:env(safe-area-inset-bottom)}
-.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 4px 8px;background:none;border:none;color:var(--gr);cursor:pointer;font-family:'Inter',sans-serif;transition:color .2s}
+/* ── BOTTOM NAV ── */
+.bnav{background:var(--nm);border-top:1px solid rgba(255,255,255,.07);display:flex;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.nb{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 4px 6px;background:none;border:none;color:var(--gr);cursor:pointer;font-family:'Inter',sans-serif;transition:color .2s}
 .nb.active{color:var(--gold)}
-.nb svg{width:22px;height:22px}
-.nb span{font-size:10px;font-weight:600}
-.scr{display:none;padding:20px}.scr#scr-cam{padding:12px}
+.nb svg{width:20px;height:20px}
+.nb span{font-size:9px;font-weight:600}
+/* ── SCREENS ── */
+.screens{flex:1;overflow-y:auto;overflow-x:hidden}
+.scr{display:none;padding:14px;padding-bottom:20px}
 .scr.active{display:block}
-.card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;border:1px solid rgba(255,255,255,.05)}
-.ct{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
-.ig{margin-bottom:12px}
-.ig label{display:block;font-size:12px;font-weight:600;color:var(--gr);margin-bottom:5px}
-.ig input,.ig select{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:var(--rs);padding:11px 13px;color:var(--w);font-size:15px;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none;transition:border-color .2s}
-.ig input:focus,.ig select:focus{border-color:var(--gold)}
+/* ── CAMERA SCREEN SPECIAL ── */
+#scr-cam{display:none;flex-direction:column;padding:0;height:100%}
+#scr-cam.active{display:flex}
+/* ── MODE SELECTOR ── */
+.modesbar{display:flex;gap:6px;padding:10px 12px 8px;background:var(--navy);flex-shrink:0}
+.modebt{flex:1;padding:8px 4px;border-radius:10px;border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--gr);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center;line-height:1.2}
+.modebt.active{background:var(--gold);border-color:var(--gold);color:var(--navy)}
+/* ── CAMERA VIEWPORT ── */
+.camview{position:relative;flex:1;background:#000;overflow:hidden;min-height:0}
+#cvid{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;transform:scaleX(-1)}
+#ccanv{position:absolute;top:0;left:0;width:100%;height:100%;transform:scaleX(-1)}
+/* ── OVERLAYS ON CAMERA ── */
+.cam-top{position:absolute;top:10px;left:0;right:0;display:flex;justify-content:center;gap:8px;z-index:10;pointer-events:none}
+.chip{background:rgba(11,31,58,.82);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:5px 12px;font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:.5px;white-space:nowrap}
+.chip.gold{border-color:rgba(245,197,24,.5);color:var(--gold)}
+.chip.green{border-color:rgba(46,204,113,.5);color:var(--green);animation:glow .8s infinite alternate}
+.chip.red{border-color:rgba(232,69,69,.5);color:var(--red)}
+.chip.blue{border-color:rgba(100,149,237,.5);color:#7BAEF8}
+@keyframes glow{from{box-shadow:0 0 0 rgba(46,204,113,0)}to{box-shadow:0 0 12px rgba(46,204,113,.4)}}
+/* ── LIVE STATS BAR ON CAMERA ── */
+.livestats{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(0deg,rgba(11,31,58,.95),rgba(11,31,58,.7));padding:12px 16px 10px;display:flex;justify-content:space-around;z-index:10}
+.lsv{text-align:center}
+.lsn{font-family:'Barlow Condensed',sans-serif;font-size:26px;font-weight:900;color:var(--gold);line-height:1}
+.lsl{font-size:10px;color:var(--gr);font-weight:500;margin-top:2px}
+/* ── GESTURE INDICATOR ── */
+.gesture-hint{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:15;text-align:center;pointer-events:none;opacity:0;transition:opacity .3s}
+.gesture-hint.show{opacity:1}
+.gesture-emoji{font-size:80px;filter:drop-shadow(0 0 20px rgba(245,197,24,.6))}
+.gesture-label{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800;color:var(--gold);margin-top:8px;text-shadow:0 2px 8px rgba(0,0,0,.8)}
+/* ── NET REFERENCE LINE (canvas drawn) ── */
+/* ── JUMP FLASH ── */
+.jflash{position:absolute;inset:0;background:rgba(46,204,113,.2);z-index:8;opacity:0;pointer-events:none;transition:opacity .1s}
+.jflash.show{opacity:1}
+/* ── CAM CONTROLS BOTTOM ── */
+.camctrl{background:var(--navy);padding:10px 12px;display:flex;gap:8px;flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.cbtn{flex:1;padding:13px 8px;border-radius:10px;border:none;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;letter-spacing:.5px;cursor:pointer;transition:all .2s}
+.cbtn.primary{background:var(--gold);color:var(--navy)}
+.cbtn.primary.done{background:var(--green);color:var(--navy)}
+.cbtn.secondary{background:rgba(255,255,255,.07);color:var(--gr);border:1px solid rgba(255,255,255,.12)}
+.cbtn:disabled{opacity:.35;cursor:not-allowed}
+/* ── LOADING OVERLAY ── */
+.loadov{position:absolute;inset:0;background:rgba(11,31,58,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:20}
+.loadov.hidden{display:none}
+.loadov p{font-size:14px;color:var(--gr);margin-top:10px;text-align:center;line-height:1.6}
+.spin{width:44px;height:44px;border:3px solid rgba(245,197,24,.2);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* ── CONFIG CARD ── */
+.cfgcard{margin:12px;background:var(--card);border-radius:var(--r);padding:16px;border:1px solid rgba(255,255,255,.05)}
+.ig{margin-bottom:11px}
+.ig label{display:block;font-size:12px;font-weight:600;color:var(--gr);margin-bottom:4px}
+.ig input,.ig select{width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:9px;padding:10px 12px;color:var(--w);font-size:15px;font-family:'Inter',sans-serif;outline:none;-webkit-appearance:none}
 .ig select option{background:var(--nm)}
-.bp{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:var(--rs);padding:14px;font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer;transition:background .2s,transform .1s}
-.bp:active{transform:scale(.98);background:var(--gd)}
-.bp:disabled{opacity:.4;cursor:not-allowed}
-.bo{width:100%;background:transparent;color:var(--gold);border:1.5px solid var(--gold);border-radius:var(--rs);padding:12px;font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:10px}
-.rbox{background:rgba(245,197,24,.08);border:1.5px solid rgba(245,197,24,.3);border-radius:var(--rs);padding:16px;margin-top:14px;display:none}
-.rbox.show{display:block}
-.rmain{font-family:'Barlow Condensed',sans-serif;font-size:50px;font-weight:900;color:var(--gold);line-height:1}
-.ru{font-size:20px;font-weight:600}
-.rlbl{font-size:12px;color:var(--gr);margin-top:2px}
-.rg{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:12px}
-.rs2{background:rgba(255,255,255,.04);border-radius:8px;padding:9px 11px}
-.rsv{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
-.rsl{font-size:11px;color:var(--gr)}
-.bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:.5px;margin-top:6px;text-transform:uppercase}
+/* ── RESULT CARD (slides up after jump) ── */
+.rescardwrap{position:absolute;bottom:0;left:0;right:0;z-index:12;transform:translateY(100%);transition:transform .35s cubic-bezier(.25,.8,.25,1)}
+.rescardwrap.show{transform:translateY(0)}
+.rescard{background:var(--nm);border-radius:16px 16px 0 0;padding:16px;border-top:2px solid rgba(245,197,24,.3)}
+.rescard-title{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:6px}
+.rescard-main{font-family:'Barlow Condensed',sans-serif;font-size:52px;font-weight:900;color:var(--gold);line-height:1}
+.rescard-unit{font-size:20px;font-weight:600}
+.resgrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:10px}
+.resstat{background:rgba(255,255,255,.05);border-radius:8px;padding:8px 10px}
+.resstat-v{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800}
+.resstat-l{font-size:10px;color:var(--gr)}
+.bdg{display:inline-block;padding:3px 9px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-top:4px}
 .bl{background:rgba(232,69,69,.2);color:#FF7070}
 .bm{background:rgba(245,197,24,.2);color:var(--gold)}
 .bh{background:rgba(46,204,113,.2);color:var(--green)}
 .be{background:rgba(100,149,237,.2);color:#7BAEF8}
-.stit{font-family:'Barlow Condensed',sans-serif;font-size:22px;font-weight:900;margin-bottom:3px}
-.ssub{font-size:13px;color:var(--gr);margin-bottom:16px}
-
-/* CAMERA */
-.cwrap{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;height:70vh;min-height:400px}
-#cvid{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1);position:absolute;top:0;left:0}
-#ccanv{position:absolute;top:0;left:0;width:100%;height:100%;transform:scaleX(-1)}
-.cov{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,31,58,.88);z-index:5}
-.cov.hidden{display:none}
-.cov p{font-size:14px;color:var(--gr);text-align:center;padding:0 20px;margin-top:8px}
-.lbar{position:absolute;bottom:0;left:0;right:0;background:rgba(11,31,58,.85);padding:10px 14px;display:flex;justify-content:space-around;z-index:4}
-.lv{text-align:center}
-.lvn{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;color:var(--gold);line-height:1}
-.lvl{font-size:10px;color:var(--gr)}
-.cbdg{position:absolute;top:10px;left:50%;transform:translateX(-50%);background:rgba(11,31,58,.78);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:1px;padding:5px 14px;border-radius:20px;z-index:4;text-transform:uppercase;white-space:nowrap}
-.dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:5px;animation:pulse 1.5s infinite}
-.dot.green{background:var(--green)}
-.dot.gold{background:var(--gold)}
-.dot.red{background:var(--red)}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-
-/* AUTO STATE INDICATOR */
-.state-bar{position:absolute;top:44px;left:50%;transform:translateX(-50%);background:rgba(11,31,58,.82);border:1px solid rgba(255,255,255,.15);color:var(--w);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;padding:4px 14px;border-radius:20px;z-index:4;white-space:nowrap;letter-spacing:.5px}
-.state-bar.idle{border-color:rgba(138,155,176,.3);color:var(--gr)}
-.state-bar.ready{border-color:rgba(245,197,24,.5);color:var(--gold)}
-.state-bar.jumping{border-color:rgba(46,204,113,.6);color:var(--green);animation:pulse .6s infinite}
-.state-bar.done{border-color:rgba(100,149,237,.5);color:#7BAEF8}
-
-/* COUNTDOWN RING */
-.countdown-wrap{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:6;display:none;flex-direction:column;align-items:center}
-.countdown-wrap.show{display:flex}
-.countdown-num{font-family:'Barlow Condensed',sans-serif;font-size:96px;font-weight:900;color:var(--gold);line-height:1;text-shadow:0 0 40px rgba(245,197,24,.5)}
-.countdown-lbl{font-size:14px;color:var(--gr);font-weight:600;margin-top:4px}
-
-/* NET LINE */
-.netl{position:absolute;left:0;right:0;border-top:2px dashed rgba(245,197,24,.65);z-index:3;pointer-events:none}
-.netlbl{position:absolute;right:4px;font-size:10px;font-weight:700;color:var(--gold);background:rgba(11,31,58,.72);padding:1px 5px;border-radius:4px;top:-1px;white-space:nowrap}
-
-/* JUMP FLASH */
-.jump-flash{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(46,204,113,.15);z-index:3;pointer-events:none;opacity:0;transition:opacity .15s}
-.jump-flash.show{opacity:1}
-
-.mtabs{display:flex;gap:8px;margin-bottom:14px}
-.mtab{flex:1;padding:9px;border-radius:var(--rs);border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--gr);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
-.mtab.active{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-.hlist{display:flex;flex-direction:column;gap:8px;margin-top:8px}
-.hi{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:8px;padding:9px 13px}
-.hiv{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:800}
+/* ── HISTORY ── */
+.hlist{display:flex;flex-direction:column;gap:8px}
+.hi{display:flex;align-items:center;justify-content:space-between;background:rgba(255,255,255,.04);border-radius:8px;padding:9px 12px}
+.hiv{font-family:'Barlow Condensed',sans-serif;font-size:19px;font-weight:800}
 .him{font-size:11px;color:var(--gr)}
-
-/* Plyo */
-.ltabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+/* ── GENERIC CARDS ── */
+.card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:14px;border:1px solid rgba(255,255,255,.05)}
+.ct{font-family:'Barlow Condensed',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:11px}
+.bp{width:100%;background:var(--gold);color:var(--navy);border:none;border-radius:9px;padding:13px;font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;letter-spacing:1px;text-transform:uppercase;cursor:pointer}
+.bo{width:100%;background:transparent;color:var(--gold);border:1.5px solid var(--gold);border-radius:9px;padding:11px;font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;margin-top:8px}
+.rbox{background:rgba(245,197,24,.07);border:1.5px solid rgba(245,197,24,.25);border-radius:9px;padding:14px;margin-top:12px;display:none}
+.rbox.show{display:block}
+.rmain{font-family:'Barlow Condensed',sans-serif;font-size:46px;font-weight:900;color:var(--gold);line-height:1}
+.ru{font-size:18px;font-weight:600}
+.rg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.rs2{background:rgba(255,255,255,.04);border-radius:7px;padding:8px 10px}
+.rsv{font-family:'Barlow Condensed',sans-serif;font-size:18px;font-weight:800}
+.rsl{font-size:10px;color:var(--gr)}
+.stit{font-family:'Barlow Condensed',sans-serif;font-size:20px;font-weight:900;margin-bottom:3px}
+.ssub{font-size:12px;color:var(--gr);margin-bottom:14px}
+.ltabs{display:flex;gap:8px;margin-bottom:14px;overflow-x:auto;scrollbar-width:none}
 .ltabs::-webkit-scrollbar{display:none}
-.ltab{flex-shrink:0;padding:8px 16px;border-radius:20px;border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--gr);font-family:'Barlow Condensed',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.ltab{flex-shrink:0;padding:7px 14px;border-radius:20px;border:1.5px solid rgba(255,255,255,.1);background:transparent;color:var(--gr);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
 .ltab.active{background:var(--gold);border-color:var(--gold);color:var(--navy)}
-.pw{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:12px;border:1px solid rgba(255,255,255,.05)}
-.wh{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
-.wt{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800}
-.wtg{font-size:11px;font-weight:700;padding:3px 8px;border-radius:10px;background:rgba(245,197,24,.15);color:var(--gold)}
-.er{display:grid;grid-template-columns:1fr auto;align-items:start;gap:8px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05)}
+.pw{background:var(--card);border-radius:var(--r);padding:13px;margin-bottom:11px;border:1px solid rgba(255,255,255,.05)}
+.wh{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px}
+.wt{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800}
+.wtg{font-size:10px;font-weight:700;padding:2px 7px;border-radius:9px;background:rgba(245,197,24,.15);color:var(--gold)}
+.er{display:grid;grid-template-columns:1fr auto;align-items:start;gap:8px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.05)}
 .er:last-child{border-bottom:none;padding-bottom:0}
-.en{font-size:14px;font-weight:600}
-.ed{font-size:12px;color:var(--gr);margin-top:2px;line-height:1.4}
-.es{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800;color:var(--gold);white-space:nowrap;text-align:right}
-.er2{font-size:11px;color:var(--gr);text-align:right}
-.tip{background:rgba(46,204,113,.07);border-left:3px solid var(--green);border-radius:0 8px 8px 0;padding:9px 12px;margin-top:10px;font-size:12px;color:var(--gr);line-height:1.5}
-.tip strong{color:var(--green)}
-.pc{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;border:1px solid rgba(255,255,255,.05);cursor:pointer;transition:border-color .2s}
+.en{font-size:13px;font-weight:600}
+.ed{font-size:11px;color:var(--gr);margin-top:2px;line-height:1.4}
+.es{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800;color:var(--gold);white-space:nowrap;text-align:right}
+.er2{font-size:10px;color:var(--gr);text-align:right}
+.tipc{background:rgba(46,204,113,.07);border-left:3px solid var(--green);border-radius:0 7px 7px 0;padding:8px 11px;margin-top:9px;font-size:11px;color:var(--gr);line-height:1.5}
+.tipc strong{color:var(--green)}
+.pc{background:var(--card);border-radius:var(--r);padding:14px;margin-bottom:11px;border:1px solid rgba(255,255,255,.05);cursor:pointer}
 .pc.exp{border-color:rgba(245,197,24,.3)}
-.ph{display:flex;align-items:center;gap:12px}
-.pi{width:40px;height:40px;border-radius:10px;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0}
-.pti{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800}
-.ps2{font-size:12px;color:var(--gr)}
-.parr{margin-left:auto;color:var(--gr);font-size:11px;transition:transform .2s}
+.ph{display:flex;align-items:center;gap:11px}
+.pi{width:38px;height:38px;border-radius:9px;background:rgba(245,197,24,.1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.pti{font-family:'Barlow Condensed',sans-serif;font-size:16px;font-weight:800}
+.ps2{font-size:11px;color:var(--gr)}
+.parr{margin-left:auto;color:var(--gr);font-size:10px;transition:transform .2s}
 .pc.exp .parr{transform:rotate(180deg)}
-.pb{display:none;margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06)}
+.pb{display:none;margin-top:11px;padding-top:11px;border-top:1px solid rgba(255,255,255,.06)}
 .pc.exp .pb{display:block}
-.pb p{font-size:13px;color:var(--gr);line-height:1.6;margin-bottom:10px}
-.psg{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px}
-.pst{background:rgba(255,255,255,.04);border-radius:8px;padding:9px 11px}
-.psv{font-family:'Barlow Condensed',sans-serif;font-size:17px;font-weight:800}
-.psl{font-size:11px;color:var(--gr)}
-.skt{display:flex;flex-wrap:wrap;gap:5px}
-.sk{padding:4px 9px;background:rgba(255,255,255,.06);border-radius:20px;font-size:11px;font-weight:600;color:var(--gl)}
-.fbox{background:rgba(255,255,255,.04);border-radius:8px;padding:11px 13px;margin-bottom:12px;font-size:12px;color:var(--gr);line-height:1.5}
-.fbox code{color:var(--gold);font-family:monospace;font-size:13px}
-.crtw{margin:14px 0;border-radius:var(--rs);overflow:hidden;background:#0D3B1E;padding:10px}
-.toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--navy);padding:9px 18px;border-radius:20px;font-weight:700;font-size:13px;opacity:0;transition:all .3s;z-index:200;white-space:nowrap}
+.pb p{font-size:12px;color:var(--gr);line-height:1.6;margin-bottom:9px}
+.psg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;margin-bottom:9px}
+.pst{background:rgba(255,255,255,.04);border-radius:7px;padding:8px 10px}
+.psv{font-family:'Barlow Condensed',sans-serif;font-size:15px;font-weight:800}
+.psl{font-size:10px;color:var(--gr)}
+.skt{display:flex;flex-wrap:wrap;gap:4px}
+.sk{padding:3px 8px;background:rgba(255,255,255,.06);border-radius:20px;font-size:10px;font-weight:600;color:var(--gl)}
+.crtw{margin:0 0 14px;border-radius:var(--r);overflow:hidden;background:#0D3B1E;padding:8px}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--green);color:var(--navy);padding:8px 16px;border-radius:20px;font-weight:700;font-size:13px;opacity:0;transition:all .3s;z-index:300;white-space:nowrap;pointer-events:none}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-/* AUTO MODE PANEL */
-.auto-panel{background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.2);border-radius:var(--rs);padding:14px;margin-bottom:14px}
-.auto-panel p{font-size:13px;color:var(--gr);line-height:1.6}
-.auto-panel strong{color:var(--green)}
-
-/* BEST JUMP INDICATOR */
-.best-bar{position:absolute;left:0;right:0;border-top:2px solid rgba(100,149,237,.7);z-index:3;pointer-events:none;display:none}
-.best-lbl{position:absolute;left:4px;font-size:10px;font-weight:700;color:#7BAEF8;background:rgba(11,31,58,.72);padding:1px 5px;border-radius:4px;top:-1px;white-space:nowrap}
+/* ── GESTURE BADGE ── */
+.gbadge{position:absolute;top:10px;right:10px;background:rgba(11,31,58,.85);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:6px 10px;font-size:11px;color:var(--gr);z-index:10;text-align:center;pointer-events:none}
+.gbadge span{display:block;font-size:20px;line-height:1}
 </style>
 </head>
 <body>
+
 <div class="hdr">
   <div class="hl">Entrenamiento · Voleibol</div>
   <div class="ht">VOLEI<span>APP</span></div>
-  <div class="hs">Detección automática · Sin tocar botones</div>
-  <div class="hbar"><s style="width:40px"></s><s style="width:14px;opacity:.5"></s><s style="width:24px;opacity:.3"></s></div>
 </div>
 
-<!-- CÁMARA -->
+<!-- ══ SCREEN: CÁMARA ══ -->
+<div class="screens">
+
 <div class="scr active" id="scr-cam">
-  <div class="stit">Medición Automática</div>
-  <div class="ssub">La app detecta tu salto sola — sin tocar nada</div>
 
-  <div class="mtabs">
-    <button class="mtab active" id="tab-jump" onclick="setMode('jump',this)">📏 Salto</button>
-    <button class="mtab" id="tab-reach" onclick="setMode('reach',this)">🖐 Alcance</button>
-    <button class="mtab" id="tab-net" onclick="setMode('net',this)">🏐 Sobre Red</button>
+  <!-- MODE SELECTOR -->
+  <div class="modesbar">
+    <button class="modebt active" id="mb-jump" onclick="setMode('jump',this)">
+      📏 SALTO<br><small style="font-size:9px;font-weight:600;opacity:.7">Altura de brinco</small>
+    </button>
+    <button class="modebt" id="mb-reach" onclick="setMode('reach',this)">
+      🖐 ALCANCE<br><small style="font-size:9px;font-weight:600;opacity:.7">Parado + brazo</small>
+    </button>
+    <button class="modebt" id="mb-net" onclick="setMode('net',this)">
+      🏐 SOBRE RED<br><small style="font-size:9px;font-weight:600;opacity:.7">Brinco + brazo</small>
+    </button>
   </div>
 
-  <!-- CONFIG -->
-  <div class="card" id="cfg-card">
-    <div class="ct">⚙️ Configuración</div>
-    <div class="ig"><label>Tu estatura (cm)</label><input type="number" id="cfg-h" placeholder="ej. 178" min="140" max="220"></div>
-    <div class="ig"><label>Género</label>
-      <select id="cfg-g"><option value="m">Masculino — red 2.43 m</option><option value="f">Femenino — red 2.24 m</option></select>
-    </div>
-    <div class="auto-panel">
-      <p><strong>✨ Detección automática:</strong><br>
-      1. Introduce tu estatura y activa la cámara<br>
-      2. Párate recto y pulsa <strong>Calibrar</strong> (1 solo toque)<br>
-      3. <strong>Salta cuando quieras</strong> — la app registra solo</p>
-    </div>
-    <button class="bp" onclick="startCam()">ACTIVAR CÁMARA</button>
-    <p style="font-size:12px;color:var(--gr);margin-top:10px;text-align:center;line-height:1.6">El video nunca se guarda — solo se procesa en tu dispositivo.</p>
-  </div>
-
-  <!-- CAMERA VIEW -->
-  <div id="cam-card" style="display:none;background:var(--card);border-radius:var(--r);overflow:hidden;margin-bottom:16px;border:1px solid rgba(255,255,255,.05)">
-    <div class="cwrap" id="cwrap">
-      <video id="cvid" playsinline autoplay muted></video>
-      <canvas id="ccanv"></canvas>
-      <div class="netl" id="netl" style="display:none"><span class="netlbl" id="netlbl">RED</span></div>
-      <div class="best-bar" id="best-bar"><span class="best-lbl" id="best-lbl">MEJOR</span></div>
-      <div class="jump-flash" id="jump-flash"></div>
-      <div class="cbdg" id="cbdg"><span class="dot gold" id="cbdot"></span><span id="cbdgt">Cargando…</span></div>
-      <div class="state-bar idle" id="state-bar">Esperando calibración</div>
-      <div class="countdown-wrap" id="countdown"><div class="countdown-num" id="cnt-num">3</div><div class="countdown-lbl">Prepárate para saltar</div></div>
-      <div class="cov" id="cov">
-        <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="1.5"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>
-        <p id="covtxt">Cargando modelo IA…<br><small style="font-size:11px">Primera vez ~5 segundos</small></p>
+  <!-- CONFIG (before camera starts) -->
+  <div id="cfg-wrap">
+    <div class="cfgcard">
+      <div class="ct">⚙️ Configuración</div>
+      <div class="ig"><label>Tu estatura (cm)</label><input type="number" id="cfg-h" placeholder="ej. 178" min="140" max="220" inputmode="numeric"></div>
+      <div class="ig"><label>Género</label>
+        <select id="cfg-g"><option value="m">Masculino — red 2.43 m</option><option value="f">Femenino — red 2.24 m</option></select>
       </div>
-      <div class="lbar" id="lbar" style="display:none">
-        <div class="lv"><div class="lvn" id="lv0">–</div><div class="lvl">Salto actual</div></div>
-        <div class="lv"><div class="lvn" id="lv1" style="color:var(--green)">–</div><div class="lvl">Mejor salto</div></div>
-        <div class="lv"><div class="lvn" id="lv2">–</div><div class="lvl">Sobre red</div></div>
+      <div style="background:rgba(46,204,113,.07);border:1px solid rgba(46,204,113,.2);border-radius:9px;padding:12px;margin-bottom:12px;font-size:12px;color:var(--gr);line-height:1.7">
+        <strong style="color:var(--green)">👍 Gestos con la mano:</strong><br>
+        Muestra <strong style="color:var(--w)">👍 pulgar arriba</strong> para iniciar<br>
+        Muestra <strong style="color:var(--w)">✊ puño cerrado</strong> para detener<br>
+        O toca el botón <strong style="color:var(--gold)">Calibrar</strong> si prefieres
+      </div>
+      <button class="bp" onclick="startCam()">ACTIVAR CÁMARA</button>
+      <p style="font-size:11px;color:var(--gr);margin-top:8px;text-align:center">El video nunca se guarda — se procesa en tu dispositivo</p>
+    </div>
+
+    <!-- History -->
+    <div class="cfgcard" style="margin-top:0">
+      <div class="ct">📊 Historial</div>
+      <div class="hlist" id="chist"></div>
+      <button class="bo" onclick="clrHist()" style="margin-top:10px">Limpiar</button>
+    </div>
+  </div>
+
+  <!-- CAMERA VIEW (hidden until started) -->
+  <div class="camview" id="camview" style="display:none">
+    <video id="cvid" playsinline autoplay muted></video>
+    <canvas id="ccanv"></canvas>
+
+    <!-- Loading overlay -->
+    <div class="loadov" id="loadov">
+      <div class="spin"></div>
+      <p id="loadtxt">Cargando modelo IA…<br><small style="font-size:11px">Primera vez ~5 segundos</small></p>
+    </div>
+
+    <!-- Top chips -->
+    <div class="cam-top" id="cam-top" style="display:none">
+      <div class="chip gold" id="chip-state">Calibra primero</div>
+      <div class="chip blue" id="chip-mode">SALTO</div>
+    </div>
+
+    <!-- Gesture badge -->
+    <div class="gbadge" id="gbadge" style="display:none">
+      <span id="gbadge-icon">–</span>
+      <div id="gbadge-lbl" style="margin-top:2px">gesto</div>
+    </div>
+
+    <!-- Gesture hint (big center) -->
+    <div class="gesture-hint" id="ghint">
+      <div class="gesture-emoji" id="ghint-emoji">👍</div>
+      <div class="gesture-label" id="ghint-label">¡INICIANDO!</div>
+    </div>
+
+    <!-- Jump flash -->
+    <div class="jflash" id="jflash"></div>
+
+    <!-- Live stats -->
+    <div class="livestats" id="livestats" style="display:none">
+      <div class="lsv"><div class="lsn" id="ls0">–</div><div class="lsl" id="ls0l">–</div></div>
+      <div class="lsv"><div class="lsn" id="ls1" style="color:var(--green)">–</div><div class="lsl" id="ls1l">Mejor</div></div>
+      <div class="lsv"><div class="lsn" id="ls2">–</div><div class="lsl" id="ls2l">–</div></div>
+    </div>
+
+    <!-- Result slide-up card -->
+    <div class="rescardwrap" id="rescardwrap">
+      <div class="rescard">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <div class="rescard-title" id="res-title">RESULTADO</div>
+          <button onclick="closeResult()" style="background:rgba(255,255,255,.08);border:none;border-radius:20px;padding:4px 10px;color:var(--gr);font-size:12px;font-weight:600;cursor:pointer">✕</button>
+        </div>
+        <div class="rescard-main" id="res-main">–<span class="rescard-unit"> cm</span></div>
+        <div id="res-badge"></div>
+        <div class="resgrid" id="res-grid"></div>
+        <div id="res-tip" style="font-size:12px;color:var(--gr);margin-top:8px;line-height:1.5"></div>
       </div>
     </div>
-    <div style="padding:10px;display:flex;gap:8px;align-items:center">
-      <button class="bp" id="btn-cal" onclick="calibrate()" disabled style="flex:1;font-size:14px;padding:12px 8px">📐 Calibrar</button>
-      <button onclick="stopCam()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 14px;color:var(--gr);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">✕ Cerrar</button>
-    </div>
-    <div id="cam-inst" style="font-size:12px;color:var(--gr);line-height:1.5;padding:0 10px 10px;text-align:center;display:none"></div>
   </div>
 
-  <!-- RESULT -->
-  <div class="rbox" id="cam-res">
-    <div class="rlbl" id="crl">RESULTADO</div>
-    <div class="rmain" id="crm">–<span class="ru"> cm</span></div>
-    <div id="crb"></div>
-    <div class="rg" id="crg"></div>
-    <div id="crt" style="font-size:13px;color:var(--gr);margin-top:10px;line-height:1.5"></div>
-    <button class="bo" onclick="resetMeasure()" style="margin-top:12px">🔄 Nueva medición</button>
+  <!-- Camera controls -->
+  <div class="camctrl" id="camctrl" style="display:none">
+    <button class="cbtn primary" id="btn-cal" onclick="calibrate()" disabled>📐 Calibrar</button>
+    <button class="cbtn secondary" onclick="resetMeas()">🔄</button>
+    <button class="cbtn secondary" onclick="stopCam()">✕</button>
   </div>
 
-  <!-- HISTORY -->
-  <div class="card" style="margin-top:4px">
-    <div class="ct">📊 Historial</div>
-    <div class="hlist" id="chist"></div>
-    <button class="bo" onclick="clrHist()">Limpiar</button>
-  </div>
 </div>
 
-<!-- CALCULADORA -->
+<!-- ══ SCREEN: CALCULADORA ══ -->
 <div class="scr" id="scr-calc">
-  <div class="stit">Calculadora Manual</div>
+  <div class="stit">Calculadora</div>
   <div class="ssub">Análisis completo con tus datos</div>
   <div class="card">
-    <div class="ct">📏 Datos</div>
-    <div class="fbox">Alcance en ataque = Estatura × 1.33 + Salto<br>Sobre red = Alcance − altura de red</div>
-    <div class="ig"><label>Estatura (cm)</label><input type="number" id="ci-h" placeholder="ej. 178"></div>
-    <div class="ig"><label>Salto vertical (cm)</label><input type="number" id="ci-j" placeholder="ej. 55"></div>
+    <div class="ct">📏 Datos del jugador</div>
+    <div style="background:rgba(255,255,255,.04);border-radius:8px;padding:10px 12px;margin-bottom:11px;font-size:11px;color:var(--gr);line-height:1.5">
+      Alcance = Estatura × 1.33 + Salto · Sobre red = Alcance − red
+    </div>
+    <div class="ig"><label>Estatura (cm)</label><input type="number" id="ci-h" placeholder="ej. 178" inputmode="numeric"></div>
+    <div class="ig"><label>Salto vertical (cm)</label><input type="number" id="ci-j" placeholder="ej. 55" inputmode="numeric"></div>
     <div class="ig"><label>Posición</label>
       <select id="ci-p"><option value="">Selecciona</option><option value="op">Opuesto</option><option value="at">Atacante / Punta</option><option value="ce">Central</option><option value="co">Colocador</option><option value="li">Líbero</option><option value="re">Receptor</option></select>
     </div>
     <div class="ig"><label>Género</label><select id="ci-g"><option value="m">Masculino</option><option value="f">Femenino</option></select></div>
     <button class="bp" onclick="calcM()">CALCULAR</button>
     <div class="rbox" id="cr">
-      <div class="rlbl">ALCANCE EN ATAQUE</div>
+      <div style="font-size:11px;color:var(--gr)">ALCANCE EN ATAQUE</div>
       <div class="rmain" id="cr-r">–<span class="ru"> cm</span></div>
       <div id="cr-b"></div>
       <div class="rg">
-        <div class="rs2"><div class="rsv" id="cr-rat">–</div><div class="rsl">Salto/Estatura %</div></div>
+        <div class="rs2"><div class="rsv" id="cr-rat">–</div><div class="rsl">Salto/Estatura</div></div>
         <div class="rs2"><div class="rsv" id="cr-net">–</div><div class="rsl">Sobre red</div></div>
         <div class="rs2"><div class="rsv" id="cr-avg">–</div><div class="rsl">Prom. posición</div></div>
         <div class="rs2"><div class="rsv" id="cr-dif">–</div><div class="rsl">Diferencia</div></div>
       </div>
-      <div id="cr-tip" class="tip" style="margin-top:10px"></div>
+      <div id="cr-tip" class="tipc" style="margin-top:10px"></div>
     </div>
   </div>
   <div class="card">
     <div class="ct">⏱ Tiempo → Altura</div>
-    <div class="ig"><label>Segundos en el aire</label><input type="number" id="ci-t" placeholder="ej. 0.52" step="0.01"></div>
+    <div class="ig"><label>Segundos en el aire</label><input type="number" id="ci-t" placeholder="ej. 0.52" step="0.01" inputmode="decimal"></div>
     <button class="bp" onclick="convT()">CONVERTIR</button>
     <div class="rbox" id="cvr">
-      <div class="rlbl">ALTURA</div>
+      <div style="font-size:11px;color:var(--gr)">ALTURA</div>
       <div class="rmain" id="cvr-c">–<span class="ru"> cm</span></div>
-      <div id="cvr-n" style="font-size:12px;color:var(--gr);margin-top:5px"></div>
+      <div id="cvr-n" style="font-size:11px;color:var(--gr);margin-top:4px"></div>
     </div>
   </div>
 </div>
 
-<!-- PLIOMETRÍA -->
+<!-- ══ SCREEN: PLIOMETRÍA ══ -->
 <div class="scr" id="scr-plyo">
   <div class="stit">Pliometría</div>
   <div class="ssub">Plan 8 semanas para aumentar tu explosividad</div>
@@ -286,28 +325,22 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
   <div id="plyout"></div>
 </div>
 
-<!-- POSICIONES -->
+<!-- ══ SCREEN: POSICIONES ══ -->
 <div class="scr" id="scr-pos">
   <div class="stit">Posiciones</div>
   <div class="ssub">Roles, física y habilidades</div>
   <div class="crtw">
-    <svg viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg" style="width:100%;display:block">
+    <svg viewBox="0 0 280 160" style="width:100%;display:block">
       <rect x="10" y="10" width="260" height="140" fill="none" stroke="#2ECC71" stroke-width="2" rx="2"/>
       <line x1="140" y1="10" x2="140" y2="150" stroke="#F5C518" stroke-width="2.5" stroke-dasharray="4,3"/>
       <line x1="110" y1="10" x2="110" y2="150" stroke="rgba(255,255,255,.2)" stroke-width="1" stroke-dasharray="3,3"/>
       <line x1="170" y1="10" x2="170" y2="150" stroke="rgba(255,255,255,.2)" stroke-width="1" stroke-dasharray="3,3"/>
-      <circle cx="55" cy="50" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/>
-      <text x="55" y="54" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P4</text>
-      <circle cx="95" cy="50" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/>
-      <text x="95" y="54" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P3</text>
-      <circle cx="55" cy="110" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/>
-      <text x="55" y="114" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P2</text>
-      <circle cx="95" cy="110" r="10" fill="#1E3F6E" stroke="#2ECC71" stroke-width="1.5"/>
-      <text x="95" y="114" text-anchor="middle" fill="#2ECC71" font-size="9" font-weight="bold" font-family="sans-serif">C</text>
-      <circle cx="30" cy="80" r="10" fill="#1E3F6E" stroke="#7BAEF8" stroke-width="1.5"/>
-      <text x="30" y="84" text-anchor="middle" fill="#7BAEF8" font-size="9" font-weight="bold" font-family="sans-serif">LB</text>
-      <circle cx="75" cy="80" r="10" fill="#1E3F6E" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
-      <text x="75" y="84" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9" font-weight="bold" font-family="sans-serif">P6</text>
+      <circle cx="55" cy="50" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/><text x="55" y="54" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P4</text>
+      <circle cx="95" cy="50" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/><text x="95" y="54" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P3</text>
+      <circle cx="55" cy="110" r="10" fill="#1E3F6E" stroke="#F5C518" stroke-width="1.5"/><text x="55" y="114" text-anchor="middle" fill="#F5C518" font-size="9" font-weight="bold" font-family="sans-serif">P2</text>
+      <circle cx="95" cy="110" r="10" fill="#1E3F6E" stroke="#2ECC71" stroke-width="1.5"/><text x="95" y="114" text-anchor="middle" fill="#2ECC71" font-size="9" font-weight="bold" font-family="sans-serif">C</text>
+      <circle cx="30" cy="80" r="10" fill="#1E3F6E" stroke="#7BAEF8" stroke-width="1.5"/><text x="30" y="84" text-anchor="middle" fill="#7BAEF8" font-size="9" font-weight="bold" font-family="sans-serif">LB</text>
+      <circle cx="75" cy="80" r="10" fill="#1E3F6E" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><text x="75" y="84" text-anchor="middle" fill="rgba(255,255,255,.6)" font-size="9" font-weight="bold" font-family="sans-serif">P6</text>
       <text x="75" y="158" text-anchor="middle" fill="rgba(255,255,255,.3)" font-size="8" font-family="sans-serif">Tu equipo</text>
       <text x="140" y="8" text-anchor="middle" fill="#F5C518" font-size="7" font-family="sans-serif">RED</text>
     </svg>
@@ -315,6 +348,9 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
   <div id="posout"></div>
 </div>
 
+</div><!-- end .screens -->
+
+<!-- BOTTOM NAV -->
 <nav class="bnav">
   <button class="nb active" onclick="showS('cam',this)">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>
@@ -333,371 +369,494 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
     <span>Posiciones</span>
   </button>
 </nav>
+
 <div class="toast" id="toast"></div>
 
 <script>
-// ════════════════════════════════════════
-//  AUTO JUMP DETECTION ENGINE
-// ════════════════════════════════════════
-let det=null, vid=null, canv=null, ctx=null, raf=null;
+// ══════════════════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════════════════
+let poseDet=null, handDet=null;
+let vid=null, canv=null, ctx=null, raf=null;
 let camMode='jump', calibrated=false;
 let baseHipY=null, pxPerCm=null, cfgH=178, cfgG='m';
-let camHist=JSON.parse(localStorage.getItem('vhist')||'[]');
+let camHist=JSON.parse(localStorage.getItem('vh2')||'[]');
 
-// Auto detection state machine
-const STATE = { IDLE:'idle', READY:'ready', AIRBORNE:'airborne', COOLDOWN:'cooldown' };
-let jumpState = STATE.IDLE;
-let takeoffHipY = null;
-let peakHipY = null;      // lowest Y value = highest point
-let landingConfirm = 0;
-let bestJumpCm = 0;
-let bestHipY = null;      // Y position of best jump peak (for drawing)
-let jumpCount = 0;
-
-// Thresholds
-const JUMP_THRESHOLD_CM = 4;    // min cm rise to count as jump
-const LAND_THRESHOLD_CM = 2;    // cm back to baseline to count as landing
-const LAND_CONFIRM_FRAMES = 4;  // frames to confirm landing
-const COOLDOWN_FRAMES = 20;     // frames after landing before next jump
-let cooldownCounter = 0;
+// Jump auto-detection
+const S={IDLE:'idle',READY:'ready',AIR:'air',COOL:'cool'};
+let jState=S.IDLE, peakHipY=null, landFrames=0, coolFrames=0;
+let bestJump=0, jumpCount=0;
 
 // Reach tracking
-let maxWristPx = null;
-let reachWindow = [];
-const REACH_WINDOW = 60; // frames
+let peakWristY=null;
 
-const inst = {
-  jump:'Párate recto → Calibrar → Salta cuando quieras\nLa app detecta automáticamente ↑↓',
-  reach:'Calibrar → Extiende el brazo al máximo → La app registra el punto más alto',
-  net:'Calibrar → Salta con brazo extendido → La app registra el pico sobre la red'
+// Gesture state
+let gestureActive=false; // true = measuring active
+let lastGesture='none';
+let gestureFrames=0;
+const GESTURE_CONFIRM=8; // frames to confirm gesture
+
+// ══════════════════════════════════════════════════
+//  MODE
+// ══════════════════════════════════════════════════
+const modeLabels={
+  jump:['Salto actual','Mejor salto','Sobre red'],
+  reach:['Alcance','Sobre red','–'],
+  net:['Salto','Alcance total','Sobre red']
 };
+const modeChips={jump:'📏 SALTO',reach:'🖐 ALCANCE',net:'🏐 SOBRE RED'};
 
 function setMode(m,btn){
   camMode=m;
-  document.querySelectorAll('.mtab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.modebt').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  resetAutoState();
-  if(document.getElementById('cam-inst')) document.getElementById('cam-inst').innerHTML=inst[m].replace(/\n/g,'<br>');
-  showT('Modo: '+btn.textContent.trim());
+  resetAuto();
+  document.getElementById('chip-mode').textContent=modeChips[m];
+  updateLiveLabels();
+  showT('Modo: '+btn.querySelector('small')?.textContent||m);
+}
+function updateLiveLabels(){
+  const l=modeLabels[camMode];
+  document.getElementById('ls0l').textContent=l[0];
+  document.getElementById('ls1l').textContent=l[1];
+  document.getElementById('ls2l').textContent=l[2];
 }
 
-function resetAutoState(){
-  jumpState=STATE.IDLE; takeoffHipY=null; peakHipY=null;
-  landingConfirm=0; cooldownCounter=0;
-  bestJumpCm=0; bestHipY=null; jumpCount=0;
-  maxWristPx=null; reachWindow=[];
-  document.getElementById('lv0').textContent='–';
-  document.getElementById('lv1').textContent='–';
-  document.getElementById('lv2').textContent='–';
-  document.getElementById('best-bar').style.display='none';
-  setStateBadge(STATE.IDLE,'Calibra primero');
-}
-
-function setStateBadge(state, txt){
-  const sb=document.getElementById('state-bar');
-  sb.className='state-bar '+state;
-  sb.textContent=txt;
-}
-
+// ══════════════════════════════════════════════════
+//  CAMERA START / STOP
+// ══════════════════════════════════════════════════
 async function startCam(){
   const h=parseFloat(document.getElementById('cfg-h').value);
   const g=document.getElementById('cfg-g').value;
   if(!h||h<140||h>220){showT('Introduce una estatura válida');return;}
   cfgH=h; cfgG=g;
-  document.getElementById('cfg-card').style.display='none';
-  document.getElementById('cam-card').style.display='block';
-  document.getElementById('cam-inst').innerHTML=inst[camMode].replace(/\n/g,'<br>');
+
+  document.getElementById('cfg-wrap').style.display='none';
+  document.getElementById('camview').style.display='flex';
+  document.getElementById('camview').style.flexDirection='column';
+  document.getElementById('camctrl').style.display='flex';
+  // Make camview fill remaining space
+  document.getElementById('camview').style.flex='1';
+
   vid=document.getElementById('cvid');
   canv=document.getElementById('ccanv');
   ctx=canv.getContext('2d');
+
   try{
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:480},height:{ideal:640}},audio:false});
+    const stream=await navigator.mediaDevices.getUserMedia({
+      video:{facingMode:'user',width:{ideal:640},height:{ideal:960}},audio:false
+    });
     vid.srcObject=stream;
-    vid.onloadedmetadata=()=>{canv.width=vid.videoWidth;canv.height=vid.videoHeight;loadDet();};
+    await new Promise(r=>{vid.onloadedmetadata=r;});
+    canv.width=vid.videoWidth; canv.height=vid.videoHeight;
+    loadModels();
   }catch(e){
     showT('Error cámara: '+e.message);
-    document.getElementById('cfg-card').style.display='block';
-    document.getElementById('cam-card').style.display='none';
+    stopCam();
   }
 }
 
-async function loadDet(){
+async function loadModels(){
+  document.getElementById('loadtxt').innerHTML='Cargando pose detection…<br><small style="font-size:11px">~5 segundos</small>';
   try{
-    document.getElementById('covtxt').innerHTML='Cargando modelo IA…<br><small style="font-size:11px">~5 segundos</small>';
     await tf.ready();
-    det=await poseDetection.createDetector(
+    poseDet=await poseDetection.createDetector(
       poseDetection.SupportedModels.MoveNet,
       {modelType:poseDetection.movenet.modelType.SINGLEPOSE_LIGHTNING}
     );
-    document.getElementById('cov').classList.add('hidden');
-    document.getElementById('lbar').style.display='flex';
-    document.getElementById('cbdgt').textContent='Modelo listo';
+    document.getElementById('loadtxt').innerHTML='Cargando detección de gestos…<br><small style="font-size:11px">Un momento más</small>';
+    try{
+      handDet=await handPoseDetection.createDetector(
+        handPoseDetection.SupportedModels.MediaPipeHands,
+        {runtime:'tfjs',maxHands:1}
+      );
+    }catch(e){ handDet=null; } // gestos opcionales
+
+    document.getElementById('loadov').classList.add('hidden');
+    document.getElementById('cam-top').style.display='flex';
+    document.getElementById('livestats').style.display='flex';
+    document.getElementById('gbadge').style.display=handDet?'block':'none';
     document.getElementById('btn-cal').disabled=false;
-    setStateBadge(STATE.IDLE,'Calibra de pie');
+    updateLiveLabels();
+    setChip('Calibra de pie','gold');
     loop();
   }catch(e){
-    document.getElementById('covtxt').innerHTML='Error cargando modelo.<br><small>Verifica conexión</small>';
-  }
-}
-
-function kps(pose){const m={};pose.keypoints.forEach(k=>m[k.name]=k);return m;}
-
-async function loop(){
-  if(!det||!vid||vid.paused){raf=requestAnimationFrame(loop);return;}
-  try{
-    const poses=await det.estimatePoses(vid);
-    ctx.clearRect(0,0,canv.width,canv.height);
-    if(poses.length>0){
-      drawPose(poses[0]);
-      if(calibrated) autoDetect(poses[0]);
-      else updateBadgeOnly(poses[0]);
-    }
-  }catch(e){}
-  raf=requestAnimationFrame(loop);
-}
-
-function updateBadgeOnly(pose){
-  const avg=pose.keypoints.reduce((s,p)=>s+p.score,0)/pose.keypoints.length;
-  document.getElementById('cbdgt').textContent=avg>0.4?'Pose OK — Calibra':'Ajusta posición';
-  document.getElementById('cbdot').className='dot '+(avg>0.4?'green':'red');
-}
-
-function drawPose(pose){
-  const k=kps(pose);
-  const conn=[['left_shoulder','right_shoulder'],['left_shoulder','left_elbow'],['left_elbow','left_wrist'],['right_shoulder','right_elbow'],['right_elbow','right_wrist'],['left_shoulder','left_hip'],['right_shoulder','right_hip'],['left_hip','right_hip'],['left_hip','left_knee'],['right_hip','right_knee'],['left_knee','left_ankle'],['right_knee','right_ankle']];
-  ctx.strokeStyle='rgba(245,197,24,.7)';ctx.lineWidth=2.5;
-  conn.forEach(([a,b])=>{const ka=k[a],kb=k[b];if(ka&&kb&&ka.score>0.3&&kb.score>0.3){ctx.beginPath();ctx.moveTo(ka.x,ka.y);ctx.lineTo(kb.x,kb.y);ctx.stroke();}});
-  pose.keypoints.forEach(p=>{if(p.score>0.3){ctx.beginPath();ctx.arc(p.x,p.y,4,0,2*Math.PI);ctx.fillStyle=p.name.includes('wrist')?'#2ECC71':'rgba(245,197,24,.9)';ctx.fill();}});
-  // Highlight highest wrist
-  const lw=k['left_wrist'],rw=k['right_wrist'];
-  if(lw&&rw&&Math.max(lw.score,rw.score)>0.3){const best=lw.y<rw.y?lw:rw;ctx.beginPath();ctx.arc(best.x,best.y,9,0,2*Math.PI);ctx.strokeStyle='#2ECC71';ctx.lineWidth=2.5;ctx.stroke();}
-  // Baseline
-  if(baseHipY){ctx.beginPath();ctx.moveTo(0,baseHipY);ctx.lineTo(canv.width,baseHipY);ctx.strokeStyle='rgba(245,197,24,.4)';ctx.lineWidth=1.5;ctx.setLineDash([6,4]);ctx.stroke();ctx.setLineDash([]);}
-  // Net line
-  const la=k['left_ankle'],ra=k['right_ankle'];
-  if(la&&ra&&la.score>0.3&&pxPerCm){
-    const netH=cfgG==='m'?243:224,ankY=(la.y+ra.y)/2,netY=ankY-netH*pxPerCm;
-    ctx.beginPath();ctx.moveTo(0,netY);ctx.lineTo(canv.width,netY);
-    ctx.strokeStyle='rgba(245,197,24,.65)';ctx.lineWidth=2;ctx.setLineDash([8,5]);ctx.stroke();ctx.setLineDash([]);
-    ctx.fillStyle='#F5C518';ctx.font='bold 10px sans-serif';ctx.fillText('RED '+netH+'cm',canv.width-82,netY-4);
-    document.getElementById('netl').style.display='none'; // using canvas instead
-  }
-}
-
-// ════ AUTO DETECTION STATE MACHINE ════
-function autoDetect(pose){
-  if(!calibrated||!baseHipY||!pxPerCm) return;
-  const k=kps(pose);
-  const lh=k['left_hip'],rh=k['right_hip'];
-  const lw=k['left_wrist'],rw=k['right_wrist'];
-  const la=k['left_ankle'],ra=k['right_ankle'];
-  const avg=pose.keypoints.reduce((s,p)=>s+p.score,0)/pose.keypoints.length;
-  document.getElementById('cbdgt').textContent=avg>0.4?'Detectando…':'Ajusta posición';
-  document.getElementById('cbdot').className='dot '+(avg>0.4?'green':'gold');
-  if(!lh||!rh||lh.score<0.25) return;
-  const hipY=(lh.y+rh.y)/2;
-  const riseCm=(baseHipY-hipY)/pxPerCm;
-
-  // Reach tracking (always)
-  if(lw&&rw&&Math.max(lw.score,rw.score)>0.3){
-    const bestWY=Math.min(lw.y,rw.y);
-    if(!maxWristPx||bestWY<maxWristPx) maxWristPx=bestWY;
-  }
-
-  // Cooldown
-  if(jumpState===STATE.COOLDOWN){
-    cooldownCounter--;
-    if(cooldownCounter<=0) jumpState=STATE.READY;
-    return;
-  }
-
-  if(jumpState===STATE.READY){
-    if(riseCm>=JUMP_THRESHOLD_CM){
-      // TAKEOFF DETECTED
-      jumpState=STATE.AIRBORNE;
-      takeoffHipY=hipY;
-      peakHipY=hipY;
-      landingConfirm=0;
-      flashScreen();
-      setStateBadge(STATE.AIRBORNE,'¡EN EL AIRE!');
-    }
-    // Live display
-    document.getElementById('lv0').textContent=Math.max(0,riseCm).toFixed(1)+' cm';
-    updateNetLive(la,ra,lw,rw);
-  }
-
-  if(jumpState===STATE.AIRBORNE){
-    // Track peak (lowest Y = highest point)
-    if(hipY<peakHipY) peakHipY=hipY;
-    const currentJumpCm=(baseHipY-hipY)/pxPerCm;
-    document.getElementById('lv0').textContent=Math.max(0,currentJumpCm).toFixed(1)+' cm';
-    // Check for landing: hip returning toward baseline
-    const dropFromPeak=(hipY-peakHipY)/pxPerCm;
-    const distFromBase=Math.abs((baseHipY-hipY)/pxPerCm);
-    if(distFromBase<=LAND_THRESHOLD_CM){
-      landingConfirm++;
-      if(landingConfirm>=LAND_CONFIRM_FRAMES){
-        // LANDING CONFIRMED
-        const jcm=Math.max(0,(baseHipY-peakHipY)/pxPerCm);
-        recordJump(jcm, la, ra, lw, rw);
-        jumpState=STATE.COOLDOWN;
-        cooldownCounter=COOLDOWN_FRAMES;
-        setStateBadge(STATE.READY,'Listo — salta de nuevo');
-      }
-    } else {
-      landingConfirm=0;
-    }
-    updateNetLive(la,ra,lw,rw);
-  }
-}
-
-function updateNetLive(la,ra,lw,rw){
-  if(!pxPerCm) return;
-  const netH=cfgG==='m'?243:224;
-  if(lw&&rw&&Math.max(lw.score,rw.score)>0.3){
-    const ankY=la&&ra&&la.score>0.3?(la.y+ra.y)/2:canv.height;
-    const rcm=Math.round((ankY-Math.min(lw.y,rw.y))/pxPerCm);
-    const ov=rcm-netH;
-    document.getElementById('lv2').textContent=(ov>=0?'+':'')+ov.toFixed(0)+' cm';
-  }
-}
-
-function recordJump(jcm, la, ra, lw, rw){
-  jumpCount++;
-  const jr=Math.round(jcm*10)/10;
-  // Update best
-  if(jr>bestJumpCm){
-    bestJumpCm=jr;
-    bestHipY=peakHipY;
-    document.getElementById('lv1').textContent=jr+' cm';
-    // Draw best bar
-    if(la&&ra&&la.score>0.3&&pxPerCm){
-      const ankY=(la.y+ra.y)/2;
-      const bestPct=(bestHipY/canv.height*100);
-      const bb=document.getElementById('best-bar');
-      bb.style.top=bestPct+'%'; bb.style.display='block';
-      document.getElementById('best-lbl').textContent='MEJOR: '+jr+' cm';
-    }
-  }
-  // Show result
-  const netH=cfgG==='m'?243:224;
-  const reach=cfgH*1.33+jr;
-  const over=(reach-netH).toFixed(0);
-  const {c,l}=rnkJ(jr);
-  const res=document.getElementById('cam-res');
-  res.classList.add('show');
-  document.getElementById('crl').textContent='SALTO #'+jumpCount+(jr===bestJumpCm?' ⭐ MEJOR':'');
-  document.getElementById('crm').innerHTML=jr+'<span class="ru"> cm</span>';
-  document.getElementById('crb').innerHTML='<span class="bdg '+c+'">'+l+'</span>';
-  document.getElementById('crg').innerHTML=mkStats([
-    {v:jr+' cm',l:'Salto vertical'},
-    {v:Math.round(reach)+' cm',l:'Alcance estimado'},
-    {v:(parseFloat(over)>=0?'+':'')+over+' cm',l:'Sobre la red'},
-    {v:((jr/cfgH)*100).toFixed(1)+'%',l:'Salto/Estatura'}
-  ]);
-  document.getElementById('crt').textContent='Mejor: '+bestJumpCm+' cm · Saltos: '+jumpCount;
-  saveH({t:'Salto',v:jr,u:'cm',lbl:l});
-  showT('🏐 Salto #'+jumpCount+': '+jr+' cm');
-
-  // Also handle reach/net modes
-  if((camMode==='reach'||camMode==='net')&&lw&&la){
-    const ankY=la&&ra&&la.score>0.3?(la.y+ra.y)/2:canv.height;
-    if(maxWristPx){
-      const rcm=Math.round((ankY-maxWristPx)/pxPerCm);
-      const ov=rcm-netH;
-      document.getElementById('crl').textContent=camMode==='reach'?'ALCANCE MÁXIMO':'ALCANCE SOBRE RED';
-      document.getElementById('crm').innerHTML=camMode==='reach'?rcm+'<span class="ru"> cm</span>':(ov>=0?'+':'')+ov.toFixed(0)+'<span class="ru"> cm</span>';
-      document.getElementById('crg').innerHTML=mkStats([
-        {v:rcm+' cm',l:'Alcance total'},
-        {v:(ov>=0?'+':'')+ov.toFixed(0)+' cm',l:'Sobre la red'},
-        {v:jr+' cm',l:'Salto detectado'},
-        {v:netH+' cm',l:'Altura de red'}
-      ]);
-      maxWristPx=null; // reset for next jump
-    }
-  }
-}
-
-function flashScreen(){
-  const f=document.getElementById('jump-flash');
-  f.classList.add('show');
-  setTimeout(()=>f.classList.remove('show'),200);
-}
-
-function calibrate(){
-  if(!det) return;
-  det.estimatePoses(vid).then(poses=>{
-    if(!poses.length){showT('No se detecta pose — párate en el encuadre');return;}
-    const k=kps(poses[0]);
-    const lh=k['left_hip'],rh=k['right_hip'];
-    const lsh=k['left_shoulder'],rsh=k['right_shoulder'];
-    const la=k['left_ankle'],ra=k['right_ankle'];
-    if(!lh||!rh||lh.score<0.3||rh.score<0.3){showT('Cadera no visible — muéstrate completo');return;}
-    baseHipY=(lh.y+rh.y)/2;
-    if(la&&ra&&la.score>0.3&&lsh&&rsh&&lsh.score>0.3){
-      const ankY=(la.y+ra.y)/2,shY=(lsh.y+rsh.y)/2;
-      pxPerCm=(ankY-shY)/(cfgH*0.87);
-    } else if(lsh&&rsh&&lsh.score>0.3){
-      const shY=(lsh.y+rsh.y)/2;
-      pxPerCm=(baseHipY-shY)/(cfgH*0.32);
-    } else {
-      pxPerCm=(canv.height*0.7)/cfgH;
-    }
-    calibrated=true;
-    jumpState=STATE.READY;
-    document.getElementById('btn-cal').textContent='✅ Calibrado — Salta cuando quieras';
-    document.getElementById('btn-cal').style.background='var(--green)';
-    document.getElementById('btn-cal').style.color='var(--navy)';
-    setStateBadge(STATE.READY,'Listo — ¡salta!');
-    showT('✅ Calibrado. ¡Ahora salta solo!');
-  });
-}
-
-function resetMeasure(){
-  document.getElementById('cam-res').classList.remove('show');
-  resetAutoState();
-  if(calibrated){
-    jumpState=STATE.READY;
-    setStateBadge(STATE.READY,'Listo — ¡salta!');
+    document.getElementById('loadtxt').innerHTML='Error cargando modelo.<br><small>Verifica conexión a internet</small>';
   }
 }
 
 function stopCam(){
   if(raf)cancelAnimationFrame(raf);
-  if(vid&&vid.srcObject)vid.srcObject.getTracks().forEach(t=>t.stop());
-  vid=null;det=null;calibrated=false;baseHipY=null;pxPerCm=null;
-  resetAutoState();
-  document.getElementById('cam-card').style.display='none';
-  document.getElementById('cfg-card').style.display='block';
-  document.getElementById('btn-cal').textContent='📐 Calibrar (1 toque — luego salta solo)';
-  document.getElementById('btn-cal').style.background='';
-  document.getElementById('btn-cal').style.color='';
+  if(vid?.srcObject)vid.srcObject.getTracks().forEach(t=>t.stop());
+  poseDet=null; handDet=null; vid=null;
+  calibrated=false; baseHipY=null; pxPerCm=null;
+  gestureActive=false; lastGesture='none';
+  resetAuto();
+  document.getElementById('camview').style.display='none';
+  document.getElementById('camctrl').style.display='none';
+  document.getElementById('cfg-wrap').style.display='block';
+  document.getElementById('loadov').classList.remove('hidden');
+  document.getElementById('cam-top').style.display='none';
+  document.getElementById('livestats').style.display='none';
   document.getElementById('btn-cal').disabled=true;
-  document.getElementById('netl').style.display='none';
-  document.getElementById('cov').classList.remove('hidden');
-  document.getElementById('lbar').style.display='none';
+  document.getElementById('btn-cal').textContent='📐 Calibrar';
+  document.getElementById('btn-cal').className='cbtn primary';
+  closeResult();
   showT('Cámara cerrada');
 }
 
-function mkStats(arr){return arr.map(a=>'<div class="rs2"><div class="rsv">'+a.v+'</div><div class="rsl">'+a.l+'</div></div>').join('');}
-function rnkJ(cm){if(cm<35)return{c:'bl',l:'Por mejorar'};if(cm<50)return{c:'bm',l:'En desarrollo'};if(cm<65)return{c:'bh',l:'Competitivo'};return{c:'be',l:'Élite'};}
+// ══════════════════════════════════════════════════
+//  MAIN LOOP
+// ══════════════════════════════════════════════════
+async function loop(){
+  if(!poseDet||!vid||vid.paused){raf=requestAnimationFrame(loop);return;}
+  try{
+    const [poses,hands]=await Promise.all([
+      poseDet.estimatePoses(vid),
+      handDet?handDet.estimateHands(vid):Promise.resolve([])
+    ]);
+    ctx.clearRect(0,0,canv.width,canv.height);
+    if(poses.length>0) drawPose(poses[0]);
+    if(hands&&hands.length>0){
+      processGesture(hands[0]);
+    } else {
+      lastGesture='none'; gestureFrames=0;
+    }
+    if(calibrated&&poses.length>0) autoDetect(poses[0]);
+    else if(poses.length>0) updateBadge(poses[0]);
+  }catch(e){}
+  raf=requestAnimationFrame(loop);
+}
 
+// ══════════════════════════════════════════════════
+//  GESTURE DETECTION
+// ══════════════════════════════════════════════════
+function processGesture(hand){
+  const kp=hand.keypoints;
+  if(!kp||kp.length<21) return;
+
+  // Thumb tip vs index base to detect thumbs up
+  const thumbTip=kp[4], thumbBase=kp[2];
+  const indexTip=kp[8], indexBase=kp[5];
+  const middleTip=kp[12], ringTip=kp[16], pinkyTip=kp[20];
+  const wrist=kp[0];
+
+  // Thumbs up: thumb tip higher than wrist, other fingers curled down
+  const thumbUp=thumbTip.y < wrist.y - 30;
+  const fingersCurled=(indexTip.y>indexBase.y+10)&&(middleTip.y>kp[9].y+10);
+  const isThumbsUp=thumbUp&&fingersCurled;
+
+  // Fist: all fingertips below their bases
+  const fistIndex=indexTip.y>indexBase.y+5;
+  const fistMiddle=middleTip.y>kp[9].y+5;
+  const fistRing=ringTip.y>kp[13].y+5;
+  const fistPinky=pinkyTip.y>kp[17].y+5;
+  const thumbCurled=thumbTip.y>thumbBase.y-10;
+  const isFist=fistIndex&&fistMiddle&&fistRing&&fistPinky;
+
+  let detected='none';
+  if(isThumbsUp) detected='thumbsup';
+  else if(isFist) detected='fist';
+
+  // Update badge
+  const icons={none:'–',thumbsup:'👍',fist:'✊'};
+  const lbls={none:'esperando',thumbsup:'¡iniciar!',fist:'detener'};
+  document.getElementById('gbadge-icon').textContent=icons[detected];
+  document.getElementById('gbadge-lbl').textContent=lbls[detected];
+
+  // Confirm gesture over N frames
+  if(detected===lastGesture&&detected!=='none'){
+    gestureFrames++;
+    if(gestureFrames===GESTURE_CONFIRM){
+      if(detected==='thumbsup'&&!gestureActive&&calibrated){
+        gestureActive=true;
+        jState=S.READY;
+        bestJump=0; jumpCount=0; peakWristY=null;
+        setChip('¡Listo — salta!','green');
+        showGestureHint('👍','¡ACTIVADO!');
+        showT('👍 Detección activa — ¡salta!');
+      } else if(detected==='fist'&&gestureActive){
+        gestureActive=false;
+        jState=S.IDLE;
+        setChip('Pausado — 👍 para reanudar','gold');
+        showGestureHint('✊','PAUSADO');
+        showT('✊ Medición pausada');
+      }
+      gestureFrames=0;
+    }
+  } else {
+    lastGesture=detected;
+    gestureFrames=0;
+  }
+}
+
+function showGestureHint(emoji,label){
+  document.getElementById('ghint-emoji').textContent=emoji;
+  document.getElementById('ghint-label').textContent=label;
+  const el=document.getElementById('ghint');
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'),1200);
+}
+
+// ══════════════════════════════════════════════════
+//  DRAW POSE
+// ══════════════════════════════════════════════════
+function kps(pose){const m={};pose.keypoints.forEach(k=>m[k.name]=k);return m;}
+
+function drawPose(pose){
+  const k=kps(pose);
+  const conn=[['left_shoulder','right_shoulder'],['left_shoulder','left_elbow'],['left_elbow','left_wrist'],['right_shoulder','right_elbow'],['right_elbow','right_wrist'],['left_shoulder','left_hip'],['right_shoulder','right_hip'],['left_hip','right_hip'],['left_hip','left_knee'],['right_hip','right_knee'],['left_knee','left_ankle'],['right_knee','right_ankle']];
+  ctx.strokeStyle='rgba(245,197,24,.75)'; ctx.lineWidth=3;
+  conn.forEach(([a,b])=>{
+    const ka=k[a],kb=k[b];
+    if(ka&&kb&&ka.score>0.25&&kb.score>0.25){ctx.beginPath();ctx.moveTo(ka.x,ka.y);ctx.lineTo(kb.x,kb.y);ctx.stroke();}
+  });
+  pose.keypoints.forEach(p=>{
+    if(p.score>0.25){
+      ctx.beginPath();ctx.arc(p.x,p.y,5,0,2*Math.PI);
+      ctx.fillStyle=p.name.includes('wrist')?'#2ECC71':'rgba(245,197,24,.9)';
+      ctx.fill();
+    }
+  });
+  // Wrist ring
+  const lw=k['left_wrist'],rw=k['right_wrist'];
+  if(lw&&rw){
+    const best=(!lw.score||rw.score>lw.score)?rw:lw.y<rw.y?lw:rw;
+    if(best.score>0.25){ctx.beginPath();ctx.arc(best.x,best.y,11,0,2*Math.PI);ctx.strokeStyle='#2ECC71';ctx.lineWidth=2.5;ctx.stroke();}
+  }
+  // Hip baseline
+  if(baseHipY){
+    ctx.beginPath();ctx.moveTo(0,baseHipY);ctx.lineTo(canv.width,baseHipY);
+    ctx.strokeStyle='rgba(245,197,24,.35)';ctx.lineWidth=1.5;ctx.setLineDash([8,5]);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(245,197,24,.6)';ctx.font='bold 11px sans-serif';
+    ctx.fillText('BASE',4,baseHipY-5);
+  }
+  // Net line
+  const la=k['left_ankle'],ra=k['right_ankle'];
+  if(la&&ra&&la.score>0.25&&pxPerCm){
+    const netH=cfgG==='m'?243:224;
+    const ankY=(la.y+ra.y)/2;
+    const netY=ankY-netH*pxPerCm;
+    ctx.beginPath();ctx.moveTo(0,netY);ctx.lineTo(canv.width,netY);
+    ctx.strokeStyle='rgba(245,197,24,.7)';ctx.lineWidth=2.5;ctx.setLineDash([10,6]);ctx.stroke();ctx.setLineDash([]);
+    ctx.fillStyle='rgba(245,197,24,.9)';ctx.font='bold 12px sans-serif';
+    ctx.fillText('RED '+netH+'cm',6,netY-6);
+  }
+}
+
+function updateBadge(pose){
+  const avg=pose.keypoints.reduce((s,p)=>s+p.score,0)/pose.keypoints.length;
+  setChip(avg>0.4?'Pose OK — Calibra':'Ajusta posición','gold');
+}
+
+// ══════════════════════════════════════════════════
+//  CALIBRATE
+// ══════════════════════════════════════════════════
+function calibrate(){
+  if(!poseDet||!vid) return;
+  poseDet.estimatePoses(vid).then(poses=>{
+    if(!poses.length){showT('No se detecta pose — párate en el encuadre');return;}
+    const k=kps(poses[0]);
+    const lh=k['left_hip'],rh=k['right_hip'];
+    const lsh=k['left_shoulder'],rsh=k['right_shoulder'];
+    const la=k['left_ankle'],ra=k['right_ankle'];
+    if(!lh||!rh||lh.score<0.25){showT('Cadera no visible — muéstrate completo');return;}
+    baseHipY=(lh.y+rh.y)/2;
+    if(la&&ra&&la.score>0.25&&lsh&&rsh&&lsh.score>0.25){
+      pxPerCm=(((la.y+ra.y)/2)-((lsh.y+rsh.y)/2))/(cfgH*0.87);
+    } else if(lsh&&rsh&&lsh.score>0.25){
+      pxPerCm=(baseHipY-((lsh.y+rsh.y)/2))/(cfgH*0.32);
+    } else {
+      pxPerCm=(canv.height*0.7)/cfgH;
+    }
+    calibrated=true;
+    jState=S.READY;
+    gestureActive=true;
+    document.getElementById('btn-cal').textContent='✅ Calibrado';
+    document.getElementById('btn-cal').className='cbtn primary done';
+    setChip('👍 para saltar / ✊ pausar','green');
+    showT('✅ Calibrado — ¡salta o haz 👍!');
+  });
+}
+
+// ══════════════════════════════════════════════════
+//  AUTO DETECTION
+// ══════════════════════════════════════════════════
+function resetAuto(){
+  jState=S.IDLE; peakHipY=null; landFrames=0; coolFrames=0;
+  bestJump=0; jumpCount=0; peakWristY=null;
+  gestureActive=false;
+  document.getElementById('ls0').textContent='–';
+  document.getElementById('ls1').textContent='–';
+  document.getElementById('ls2').textContent='–';
+}
+
+function autoDetect(pose){
+  if(!gestureActive) return;
+  const k=kps(pose);
+  const lh=k['left_hip'],rh=k['right_hip'];
+  const lw=k['left_wrist'],rw=k['right_wrist'];
+  const la=k['left_ankle'],ra=k['right_ankle'];
+  if(!lh||!rh||lh.score<0.2) return;
+
+  const hipY=(lh.y+rh.y)/2;
+  const riseCm=(baseHipY-hipY)/pxPerCm;
+
+  // Track wrist peak (for reach and net modes)
+  if(lw&&rw&&Math.max(lw.score||0,rw.score||0)>0.2){
+    const bestWY=Math.min(lw.y,rw.y);
+    if(!peakWristY||bestWY<peakWristY) peakWristY=bestWY;
+  }
+
+  // Cooldown
+  if(jState===S.COOL){
+    coolFrames--;
+    if(coolFrames<=0){jState=S.READY;setChip('Listo — salta de nuevo','green');}
+    return;
+  }
+
+  const JUMP_T=4, LAND_T=2;
+
+  if(jState===S.READY){
+    document.getElementById('ls0').textContent=Math.max(0,riseCm).toFixed(1)+' cm';
+    updateNetStat(la,ra,lw,rw);
+    if(riseCm>=JUMP_T){
+      jState=S.AIR; peakHipY=hipY; landFrames=0;
+      flash(); setChip('¡EN EL AIRE!','green');
+    }
+  }
+
+  if(jState===S.AIR){
+    if(hipY<peakHipY) peakHipY=hipY;
+    const curJump=(baseHipY-hipY)/pxPerCm;
+    document.getElementById('ls0').textContent=Math.max(0,curJump).toFixed(1)+' cm';
+    if(Math.abs(riseCm)<=LAND_T){
+      landFrames++;
+      if(landFrames>=4){
+        const jcm=Math.max(0,(baseHipY-peakHipY)/pxPerCm);
+        recordResult(jcm,la,ra,lw,rw);
+        peakWristY=null;
+        jState=S.COOL; coolFrames=25;
+      }
+    } else landFrames=0;
+    updateNetStat(la,ra,lw,rw);
+  }
+}
+
+function updateNetStat(la,ra,lw,rw){
+  if(!pxPerCm||!lw||!rw) return;
+  const netH=cfgG==='m'?243:224;
+  const ankY=la&&ra&&(la.score||0)>0.2?(la.y+ra.y)/2:canv.height;
+  const rcm=Math.round((ankY-Math.min(lw.y,rw.y))/pxPerCm);
+  const ov=rcm-netH;
+  document.getElementById('ls2').textContent=(ov>=0?'+':'')+ov.toFixed(0)+' cm';
+  if(camMode==='reach') document.getElementById('ls0').textContent=rcm+' cm';
+}
+
+function recordResult(jcm,la,ra,lw,rw){
+  jumpCount++;
+  const jr=Math.round(jcm*10)/10;
+  if(jr>bestJump){
+    bestJump=jr;
+    document.getElementById('ls1').textContent=jr+' cm';
+  }
+
+  const netH=cfgG==='m'?243:224;
+  const ankY=la&&ra&&(la.score||0)>0.2?(la.y+ra.y)/2:canv.height;
+
+  if(camMode==='jump'){
+    const reach=cfgH*1.33+jr;
+    const over=(reach-netH).toFixed(0);
+    const {c,l}=rnk(jr);
+    showResult('SALTO #'+jumpCount+(jr===bestJump?' ⭐':''),
+      jr,'cm',c,l,[
+        {v:jr+' cm',l:'Salto vertical'},
+        {v:Math.round(reach)+' cm',l:'Alcance estimado'},
+        {v:(parseFloat(over)>=0?'+':'')+over+' cm',l:'Sobre la red'},
+      ],'Mejor: '+bestJump+' cm · Total: '+jumpCount+' saltos');
+    saveH({t:'Salto',v:jr,u:'cm',lbl:l});
+    showT('🏐 Salto: '+jr+' cm');
+
+  } else if(camMode==='reach'){
+    const rcm=peakWristY?Math.round((ankY-peakWristY)/pxPerCm):Math.round(cfgH*1.33);
+    const ov=(rcm-netH).toFixed(0);
+    const {c,l}=rnkR(rcm);
+    showResult('ALCANCE DE BRAZO',rcm,'cm',c,l,[
+      {v:rcm+' cm',l:'Alcance total'},
+      {v:(parseFloat(ov)>=0?'+':'')+ov+' cm',l:'Sobre la red'},
+      {v:(rcm/cfgH*100).toFixed(1)+'%',l:'Alcance/Estatura'},
+    ],'Medición con brazo extendido de pie');
+    saveH({t:'Alcance',v:rcm,u:'cm',lbl:l});
+    showT('🖐 Alcance: '+rcm+' cm');
+
+  } else { // net
+    const rcm=peakWristY?Math.round((ankY-peakWristY)/pxPerCm):Math.round(cfgH*1.33+jr);
+    const ov=rcm-netH;
+    const ovS=(ov>=0?'+':'')+ov.toFixed(0);
+    const {c,l}=rnkN(ov);
+    showResult('ALCANCE SOBRE LA RED',ovS,'cm',c,l,[
+      {v:rcm+' cm',l:'Alcance total'},
+      {v:ovS+' cm',l:'Sobre la red'},
+      {v:jr+' cm',l:'Salto detectado'},
+    ],ov>=0?'Atacas '+ov.toFixed(0)+' cm sobre la red ✅':'Necesitas '+Math.abs(ov).toFixed(0)+' cm más para la red');
+    saveH({t:'Sobre red',v:ovS,u:'cm',lbl:l});
+    showT('🏐 Sobre red: '+ovS+' cm');
+  }
+}
+
+function flash(){
+  const f=document.getElementById('jflash');
+  f.classList.add('show');
+  setTimeout(()=>f.classList.remove('show'),180);
+}
+
+// ══════════════════════════════════════════════════
+//  RESULT CARD
+// ══════════════════════════════════════════════════
+function showResult(title,main,unit,c,l,stats,tip){
+  document.getElementById('res-title').textContent=title;
+  document.getElementById('res-main').innerHTML=main+'<span class="rescard-unit"> '+unit+'</span>';
+  document.getElementById('res-badge').innerHTML='<span class="bdg '+c+'">'+l+'</span>';
+  document.getElementById('res-grid').innerHTML=stats.map(s=>'<div class="resstat"><div class="resstat-v">'+s.v+'</div><div class="resstat-l">'+s.l+'</div></div>').join('');
+  document.getElementById('res-tip').textContent=tip;
+  document.getElementById('rescardwrap').classList.add('show');
+}
+function closeResult(){document.getElementById('rescardwrap').classList.remove('show');}
+function resetMeas(){closeResult();resetAuto();if(calibrated){jState=S.READY;gestureActive=true;setChip('Listo — salta','green');}}
+
+// ══════════════════════════════════════════════════
+//  CHIP / BADGE HELPERS
+// ══════════════════════════════════════════════════
+function setChip(txt,cls){
+  const c=document.getElementById('chip-state');
+  c.textContent=txt;
+  c.className='chip '+cls;
+}
+function rnk(cm){if(cm<35)return{c:'bl',l:'Por mejorar'};if(cm<50)return{c:'bm',l:'En desarrollo'};if(cm<65)return{c:'bh',l:'Competitivo'};return{c:'be',l:'Élite'};}
+function rnkR(cm){const r=cfgG==='m'?270:240;if(cm<r-30)return{c:'bl',l:'Bajo'};if(cm<r)return{c:'bm',l:'Promedio'};if(cm<r+20)return{c:'bh',l:'Alto'};return{c:'be',l:'Élite'};}
+function rnkN(ov){if(ov<0)return{c:'bl',l:'Bajo la red'};if(ov<15)return{c:'bm',l:'Rasante'};if(ov<30)return{c:'bh',l:'Bueno'};return{c:'be',l:'Excelente'};}
+
+// ══════════════════════════════════════════════════
+//  HISTORY
+// ══════════════════════════════════════════════════
 function saveH(e){
   camHist.unshift({...e,d:new Date().toLocaleDateString('es-MX',{day:'2-digit',month:'short'})});
   if(camHist.length>15)camHist.pop();
-  localStorage.setItem('vhist',JSON.stringify(camHist));
+  localStorage.setItem('vh2',JSON.stringify(camHist));
   renderH();
 }
 function renderH(){
   const c=document.getElementById('chist');
   if(!camHist.length){c.innerHTML='<div style="text-align:center;padding:14px;color:var(--gr);font-size:13px">Sin registros aún</div>';return;}
-  const best=Math.max(...camHist.map(h=>parseFloat(h.v)||0));
-  c.innerHTML=camHist.map(h=>'<div class="hi"><div><div class="hiv">'+h.v+' '+h.u+(parseFloat(h.v)===best?' ⭐':'')+'</div><div class="him">'+h.t+' · '+h.d+'</div></div><span class="bdg bm" style="font-size:10px">'+h.lbl+'</span></div>').join('');
+  const best=Math.max(...camHist.filter(h=>h.t==='Salto').map(h=>parseFloat(h.v)||0));
+  c.innerHTML=camHist.map(h=>'<div class="hi"><div><div class="hiv">'+h.v+' '+h.u+(h.t==='Salto'&&parseFloat(h.v)===best&&best>0?' ⭐':'')+'</div><div class="him">'+h.t+' · '+h.d+'</div></div><span class="bdg bm" style="font-size:10px">'+h.lbl+'</span></div>').join('');
 }
-function clrHist(){camHist=[];localStorage.setItem('vhist',JSON.stringify(camHist));renderH();}
+function clrHist(){camHist=[];localStorage.setItem('vh2',JSON.stringify(camHist));renderH();}
 renderH();
 
-// ════ CALCULADORA ════
+// ══════════════════════════════════════════════════
+//  CALCULATOR
+// ══════════════════════════════════════════════════
 const pRef={op:{n:'Opuesto',m:75,f:58},at:{n:'Atacante',m:68,f:55},ce:{n:'Central',m:70,f:57},co:{n:'Colocador',m:60,f:52},li:{n:'Líbero',m:45,f:38},re:{n:'Receptor',m:65,f:53}};
 function calcM(){
   const h=parseFloat(document.getElementById('ci-h').value);
@@ -710,12 +869,12 @@ function calcM(){
   document.getElementById('cr-r').innerHTML=Math.round(reach)+'<span class="ru"> cm</span>';
   document.getElementById('cr-rat').textContent=ratio+'%';
   document.getElementById('cr-net').textContent=(parseFloat(ov)>=0?'+':'')+ov+' cm';
-  const{c,l}=rnkJ(j);
+  const{c,l}=rnk(j);
   document.getElementById('cr-b').innerHTML='<span class="bdg '+c+'">'+l+'</span>';
   if(p){const pd=pRef[p],avg=g==='m'?pd.m:pd.f,diff=(j-avg).toFixed(1);
     document.getElementById('cr-avg').textContent=avg+' cm';
     document.getElementById('cr-dif').innerHTML=parseFloat(diff)>=0?'<span style="color:var(--green)">+'+diff+'</span>':'<span style="color:var(--red)">'+diff+'</span>';
-    document.getElementById('cr-tip').innerHTML=parseFloat(diff)<-15?'⚠️ '+Math.abs(diff)+' cm bajo el promedio para '+pd.n+'. Prioriza pliometría.':parseFloat(diff)<0?'📈 Cerca del promedio. 8 semanas de pliometría pueden igualarlo.':parseFloat(diff)<10?'✅ Al nivel promedio para '+pd.n+'.':'🔥 Superas el promedio de '+pd.n+' por '+diff+' cm.';
+    document.getElementById('cr-tip').innerHTML=parseFloat(diff)<-15?'⚠️ '+Math.abs(diff)+' cm bajo el promedio para '+pd.n+'. Prioriza pliometría.':parseFloat(diff)<0?'📈 Cerca del promedio. 8 semanas pueden igualarlo.':parseFloat(diff)<10?'✅ Al nivel promedio para '+pd.n+'.':'🔥 Superas el promedio de '+pd.n+' por '+diff+' cm.';
   } else {
     document.getElementById('cr-avg').textContent='–';document.getElementById('cr-dif').textContent='–';
     document.getElementById('cr-tip').textContent='Selecciona tu posición para comparar.';
@@ -730,60 +889,68 @@ function convT(){
   document.getElementById('cvr-n').textContent='t='+t+'s · v\u2080='+(9.81*t/2).toFixed(2)+' m/s';
 }
 
-// ════ PLIOMETRÍA ════
-const pd={
+// ══════════════════════════════════════════════════
+//  PLYO
+// ══════════════════════════════════════════════════
+const pld={
   b:{label:'Principiante',desc:'Menos de 3 meses. Enfoque: base y coordinación.',weeks:[
-    {w:'Sem 1–2',tag:'Base',tip:'Domina el aterrizaje. Rodillas sobre pies.',ex:[{n:'Saltos al cajón',s:'3×8',r:'90s',d:'Cajón 20–30cm. Sube con dos pies, baja con control.'},{n:'Squat Jump',s:'3×6',r:'2min',d:'Posición squat, explota hacia arriba, aterriza suave.'},{n:'Saltos laterales',s:'3×10/lado',r:'60s',d:'Salto lateral corto. Activa estabilizadores del tobillo.'},{n:'Skipping alto',s:'3×20m',r:'60s',d:'Rodillas arriba, brazos activos. Activación neural.'}]},
-    {w:'Sem 3–4',tag:'Activación',tip:'Prioriza reactividad sobre altura.',ex:[{n:'Depth Drop',s:'3×6',r:'2min',d:'Bájate del cajón, absorbe impacto en squat profundo.'},{n:'CMJ',s:'4×5',r:'2min',d:'Flexión rápida + extensión explosiva. Brazos arriba.'},{n:'Bounding',s:'3×20m',r:'90s',d:'Salto de un pie al otro, máximo esfuerzo horizontal.'},{n:'Jump & Freeze',s:'3×8',r:'90s',d:'Salta, aterriza y quédate quieto 2s.'}]}
+    {w:'Sem 1–2',tag:'Base',tip:'Domina el aterrizaje.',ex:[{n:'Saltos al cajón',s:'3×8',r:'90s',d:'Cajón 20–30cm. Baja con control.'},{n:'Squat Jump',s:'3×6',r:'2min',d:'Explota hacia arriba, aterriza suave.'},{n:'Saltos laterales',s:'3×10/lado',r:'60s',d:'Activa estabilizadores del tobillo.'},{n:'Skipping alto',s:'3×20m',r:'60s',d:'Rodillas arriba, brazos activos.'}]},
+    {w:'Sem 3–4',tag:'Activación',tip:'Prioriza reactividad.',ex:[{n:'Depth Drop',s:'3×6',r:'2min',d:'Absorbe impacto en squat profundo.'},{n:'CMJ',s:'4×5',r:'2min',d:'Flexión rápida + extensión explosiva.'},{n:'Bounding',s:'3×20m',r:'90s',d:'Salto de un pie al otro.'},{n:'Jump & Freeze',s:'3×8',r:'90s',d:'Aterriza y quédate quieto 2s.'}]}
   ]},
   i:{label:'Intermedio',desc:'1–2 meses de salto. Enfoque: potencia.',weeks:[
-    {w:'Sem 1–2',tag:'Potencia',tip:'Usa el suelo como muelle. Contacto mínimo.',ex:[{n:'Depth Jump',s:'4×5',r:'2.5min',d:'Baja del cajón 40–50cm, salta de inmediato.'},{n:'Bulgarian Split Squat Jump',s:'3×6/lado',r:'2min',d:'Pierna trasera en banca. Explota con pierna de apoyo.'},{n:'Triple Broad Jump',s:'4×3',r:'2min',d:'3 saltos horizontales consecutivos.'},{n:'Zig-zag cones',s:'4×30s',r:'90s',d:'Saltos laterales rápidos.'}]},
-    {w:'Sem 3–4',tag:'Reactividad',tip:'"El suelo quema" — contacto mínimo.',ex:[{n:'Drop Jump reactivo',s:'5×5',r:'3min',d:'Depth Jump, objetivo contacto <0.25s.'},{n:'Hurdle Hops',s:'4×8',r:'2min',d:'Vallas 40–60cm. Velocidad máxima.'},{n:'Single Leg Bound',s:'3×10/lado',r:'2min',d:'Salto largo de un pie al mismo.'},{n:'Approach Jump',s:'5×3',r:'2min',d:'Remate simulado con aproximación 3 pasos.'}]},
-    {w:'Sem 5–8',tag:'Específico Voley',tip:'Simula situaciones de partido.',ex:[{n:'Jump Series ×5',s:'4×5',r:'3min',d:'5 CMJ consecutivos.'},{n:'Bloqueo reactivo',s:'4×6',r:'2min',d:'Compañero señala, tú saltas a bloquear.'},{n:'Approach + rebote',s:'5×4',r:'2.5min',d:'4 remates consecutivos.'},{n:'Core explosivo',s:'3×10',r:'90s',d:'Medicine ball slam + salto.'}]}
+    {w:'Sem 1–2',tag:'Potencia',tip:'Usa el suelo como muelle.',ex:[{n:'Depth Jump',s:'4×5',r:'2.5min',d:'Baja 40–50cm y salta de inmediato.'},{n:'Bulgarian Split Squat Jump',s:'3×6/lado',r:'2min',d:'Explota con pierna de apoyo.'},{n:'Triple Broad Jump',s:'4×3',r:'2min',d:'3 saltos horizontales consecutivos.'},{n:'Zig-zag cones',s:'4×30s',r:'90s',d:'Saltos laterales rápidos.'}]},
+    {w:'Sem 3–4',tag:'Reactividad',tip:'"El suelo quema".',ex:[{n:'Drop Jump reactivo',s:'5×5',r:'3min',d:'Contacto objetivo <0.25s.'},{n:'Hurdle Hops',s:'4×8',r:'2min',d:'Vallas 40–60cm.'},{n:'Single Leg Bound',s:'3×10/lado',r:'2min',d:'Salto largo de un pie al mismo.'},{n:'Approach Jump',s:'5×3',r:'2min',d:'Remate simulado 3 pasos.'}]},
+    {w:'Sem 5–8',tag:'Específico Voley',tip:'Simula situaciones de partido.',ex:[{n:'Jump Series ×5',s:'4×5',r:'3min',d:'5 CMJ consecutivos.'},{n:'Bloqueo reactivo',s:'4×6',r:'2min',d:'Compañero señala, tú saltas.'},{n:'Approach + rebote',s:'5×4',r:'2.5min',d:'4 remates consecutivos.'},{n:'Core explosivo',s:'3×10',r:'90s',d:'Medicine ball slam + salto.'}]}
   ]},
   a:{label:'Avanzado',desc:'Pliometría regular. Velocidad-fuerza máxima.',weeks:[
-    {w:'Sem 1–2',tag:'Máx. Intensidad',tip:'Descansa completo. La calidad es todo.',ex:[{n:'Depth Jump caja alta (60–80cm)',s:'5×4',r:'3min',d:'Alto impacto. Técnica impecable.'},{n:'Weighted Squat Jump',s:'4×4',r:'3min',d:'10–20% RM. Explosividad máxima.'},{n:'Altitude Drop + Sprint',s:'4×4',r:'3min',d:'Depth Jump + sprint 10m inmediato.'},{n:'Shock Method',s:'3×5',r:'4min',d:'Depth jump + bloqueo + remate.'}]},
-    {w:'Sem 3–8',tag:'Ondulación',tip:'Alterna alta intensidad / volumen.',ex:[{n:'Contrast Training',s:'4×(3+3)',r:'4min',d:'3 sentadillas 85%RM + 3 CMJ.'},{n:'Reactive Split Jump',s:'4×8',r:'2min',d:'Lunge jump alternando piernas.'},{n:'Approach + banda',s:'4×5',r:'3min',d:'Banda elástica. Sobrecarga el despegue.'},{n:'Unilateral Depth Jump',s:'3×4/lado',r:'3min',d:'Depth jump a una pierna.'}]}
+    {w:'Sem 1–2',tag:'Máx. Intensidad',tip:'Calidad sobre cantidad.',ex:[{n:'Depth Jump caja alta',s:'5×4',r:'3min',d:'60–80cm. Técnica impecable.'},{n:'Weighted Squat Jump',s:'4×4',r:'3min',d:'10–20% RM.'},{n:'Altitude Drop + Sprint',s:'4×4',r:'3min',d:'Depth Jump + sprint 10m.'},{n:'Shock Method',s:'3×5',r:'4min',d:'Depth jump + bloqueo + remate.'}]},
+    {w:'Sem 3–8',tag:'Ondulación',tip:'Alterna intensidad / volumen.',ex:[{n:'Contrast Training',s:'4×(3+3)',r:'4min',d:'Sentadilla 85%RM + CMJ.'},{n:'Reactive Split Jump',s:'4×8',r:'2min',d:'Lunge jump alternando piernas.'},{n:'Approach + banda',s:'4×5',r:'3min',d:'Banda elástica en despegue.'},{n:'Unilateral Depth Jump',s:'3×4/lado',r:'3min',d:'Una pierna.'}]}
   ]}
 };
 function setLvl(l,btn){document.querySelectorAll('.ltab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');renderPl(l);}
 function renderPl(l){
-  const d=pd[l];
-  let h='<div class="card"><div class="ct">📋 '+d.label+'</div><p style="font-size:13px;color:var(--gr);line-height:1.6">'+d.desc+'</p></div>';
+  const d=pld[l];
+  let h='<div class="card"><div class="ct">📋 '+d.label+'</div><p style="font-size:12px;color:var(--gr);line-height:1.6">'+d.desc+'</p></div>';
   d.weeks.forEach(w=>{
     h+='<div class="pw"><div class="wh"><div class="wt">'+w.w+'</div><div class="wtg">'+w.tag+'</div></div><div>';
-    w.ex.forEach(e=>{h+='<div class="er"><div><div class="en">'+e.n+'</div><div class="ed">'+e.d+'</div></div><div><div class="es">'+e.s+'</div><div class="er2">desc '+e.r+'</div></div></div>';});
-    h+='</div><div class="tip"><strong>💡 Clave:</strong> '+w.tip+'</div></div>';
+    w.ex.forEach(e=>{h+='<div class="er"><div><div class="en">'+e.n+'</div><div class="ed">'+e.d+'</div></div><div><div class="es">'+e.s+'</div><div class="er2">'+e.r+'</div></div></div>';});
+    h+='</div><div class="tipc"><strong>💡</strong> '+w.tip+'</div></div>';
   });
   document.getElementById('plyout').innerHTML=h;
 }
 renderPl('b');
 
-// ════ POSICIONES ════
-const pos=[
-  {i:'🏐',n:'Opuesto',s:'Zona 1 · Atacante principal',d:'Mayor anotador. Salto más alto y potencia de brazo excepcional.',mH:'195–205',mJ:'70–80',mN:'+40',fH:'182–192',fJ:'58–68',fN:'+25',sk:['Remate potente','Bloqueo','Salto alto','Ataque apoyo']},
-  {i:'⚡',n:'Atacante / Punta',s:'Zona 4 · Ala izquierda',d:'Combina recepción con ataque. Comodín del equipo.',mH:'190–200',mJ:'65–75',mN:'+35',fH:'178–188',fJ:'55–65',fN:'+22',sk:['Recepción','Remate Z4','Defensa','Consistencia']},
-  {i:'🛡️',n:'Central',s:'Zona 3 · Bloqueador',d:'Pivote defensivo. Más saltos por partido.',mH:'195–210',mJ:'68–78',mN:'+38',fH:'183–194',fJ:'57–67',fN:'+26',sk:['Bloqueo','Velocidad lateral','Bolas rápidas','Resistencia']},
-  {i:'🎯',n:'Colocador',s:'Director del juego',d:'Cerebro del equipo. Decide quién ataca y cuándo.',mH:'183–195',mJ:'58–68',mN:'+28',fH:'172–183',fJ:'50–60',fN:'+18',sk:['Colocación','Táctica','Liderazgo','Bloqueo']},
-  {i:'🔵',n:'Líbero',s:'Especialista en defensa',d:'No ataca. Mejor defensor. Agilidad y reacción excepcionales.',mH:'175–185',mJ:'40–50',mN:'N/A',fH:'165–175',fJ:'35–45',fN:'N/A',sk:['Recepción','Defensa','Agilidad','Reacción']},
-  {i:'📡',n:'Receptor / Ala',s:'Zona 5–6 · Receptor-Atacante',d:'Recibe saques y ataca en rotación.',mH:'186–196',mJ:'62–72',mN:'+30',fH:'175–185',fJ:'52–62',fN:'+20',sk:['Recepción saque','Defensa','Ataque','Consistencia']}
+// ══════════════════════════════════════════════════
+//  POSITIONS
+// ══════════════════════════════════════════════════
+const positions=[
+  {i:'🏐',n:'Opuesto',s:'Zona 1 · Atacante principal',d:'Mayor anotador. Salto más alto y potencia de brazo excepcional.',mH:'195–205',mJ:'70–80',mN:'+40',fH:'182–192',fJ:'58–68',fN:'+25',sk:['Remate potente','Bloqueo','Salto alto']},
+  {i:'⚡',n:'Atacante / Punta',s:'Zona 4 · Ala izquierda',d:'Combina recepción con ataque. Comodín del equipo.',mH:'190–200',mJ:'65–75',mN:'+35',fH:'178–188',fJ:'55–65',fN:'+22',sk:['Recepción','Remate Z4','Defensa']},
+  {i:'🛡️',n:'Central',s:'Zona 3 · Bloqueador',d:'Pivote defensivo. Más saltos por partido.',mH:'195–210',mJ:'68–78',mN:'+38',fH:'183–194',fJ:'57–67',fN:'+26',sk:['Bloqueo','Velocidad lateral','Resistencia']},
+  {i:'🎯',n:'Colocador',s:'Director del juego',d:'Cerebro del equipo. Precisión milimétrica.',mH:'183–195',mJ:'58–68',mN:'+28',fH:'172–183',fJ:'50–60',fN:'+18',sk:['Colocación','Táctica','Liderazgo']},
+  {i:'🔵',n:'Líbero',s:'Especialista en defensa',d:'No ataca. Mejor defensor. Agilidad excepcional.',mH:'175–185',mJ:'40–50',mN:'N/A',fH:'165–175',fJ:'35–45',fN:'N/A',sk:['Recepción','Defensa','Agilidad']},
+  {i:'📡',n:'Receptor / Ala',s:'Zona 5–6',d:'Recibe saques y ataca en rotación.',mH:'186–196',mJ:'62–72',mN:'+30',fH:'175–185',fJ:'52–62',fN:'+20',sk:['Recepción saque','Ataque','Consistencia']}
 ];
 function renderPos(){
-  document.getElementById('posout').innerHTML=pos.map((p,i)=>'<div class="pc" id="pc'+i+'" onclick="tgPos('+i+')"><div class="ph"><div class="pi">'+p.i+'</div><div><div class="pti">'+p.n+'</div><div class="ps2">'+p.s+'</div></div><div class="parr">▼</div></div><div class="pb"><p>'+p.d+'</p><div style="font-size:11px;color:var(--gr);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Hombres</div><div class="psg"><div class="pst"><div class="psv">'+p.mH+' cm</div><div class="psl">Estatura</div></div><div class="pst"><div class="psv">'+p.mJ+' cm</div><div class="psl">Salto</div></div><div class="pst"><div class="psv">'+p.mN+' cm</div><div class="psl">Sobre red</div></div></div><div style="font-size:11px;color:var(--gr);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Mujeres</div><div class="psg"><div class="pst"><div class="psv">'+p.fH+' cm</div><div class="psl">Estatura</div></div><div class="pst"><div class="psv">'+p.fJ+' cm</div><div class="psl">Salto</div></div><div class="pst"><div class="psv">'+p.fN+' cm</div><div class="psl">Sobre red</div></div></div><div class="skt">'+p.sk.map(s=>'<span class="sk">'+s+'</span>').join('')+'</div></div></div>').join('');
+  document.getElementById('posout').innerHTML=positions.map((p,i)=>'<div class="pc" id="pc'+i+'" onclick="tgPos('+i+')"><div class="ph"><div class="pi">'+p.i+'</div><div><div class="pti">'+p.n+'</div><div class="ps2">'+p.s+'</div></div><div class="parr">▼</div></div><div class="pb"><p>'+p.d+'</p><div style="font-size:10px;color:var(--gr);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Hombres</div><div class="psg"><div class="pst"><div class="psv">'+p.mH+' cm</div><div class="psl">Estatura</div></div><div class="pst"><div class="psv">'+p.mJ+' cm</div><div class="psl">Salto</div></div><div class="pst"><div class="psv">'+p.mN+' cm</div><div class="psl">Red</div></div></div><div style="font-size:10px;color:var(--gr);font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px">Mujeres</div><div class="psg"><div class="pst"><div class="psv">'+p.fH+' cm</div><div class="psl">Estatura</div></div><div class="pst"><div class="psv">'+p.fJ+' cm</div><div class="psl">Salto</div></div><div class="pst"><div class="psv">'+p.fN+' cm</div><div class="psl">Red</div></div></div><div class="skt">'+p.sk.map(s=>'<span class="sk">'+s+'</span>').join('')+'</div></div></div>').join('');
 }
 function tgPos(i){document.getElementById('pc'+i).classList.toggle('exp');}
 renderPos();
 
-// ════ NAV ════
+// ══════════════════════════════════════════════════
+//  NAV
+// ══════════════════════════════════════════════════
 function showS(n,btn){
   document.querySelectorAll('.scr').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   document.getElementById('scr-'+n).classList.add('active');
   btn.classList.add('active');
-  window.scrollTo(0,0);
+  if(n!=='cam') document.querySelector('.screens').scrollTop=0;
 }
 
-// ════ TOAST ════
+// ══════════════════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════════════════
 function showT(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
 </script>
 </body>
