@@ -26,7 +26,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
 .nb.active{color:var(--gold)}
 .nb svg{width:22px;height:22px}
 .nb span{font-size:10px;font-weight:600}
-.scr{display:none;padding:20px}
+.scr{display:none;padding:20px}.scr#scr-cam{padding:12px}
 .scr.active{display:block}
 .card{background:var(--card);border-radius:var(--r);padding:18px;margin-bottom:16px;border:1px solid rgba(255,255,255,.05)}
 .ct{font-family:'Barlow Condensed',sans-serif;font-size:12px;font-weight:700;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:12px}
@@ -57,8 +57,8 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
 .ssub{font-size:13px;color:var(--gr);margin-bottom:16px}
 
 /* CAMERA */
-.cwrap{position:relative;width:100%;border-radius:var(--r);overflow:hidden;background:#000;aspect-ratio:3/4;max-height:62vh}
-#cvid{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1)}
+.cwrap{position:relative;width:100%;border-radius:12px;overflow:hidden;background:#000;height:70vh;min-height:400px}
+#cvid{width:100%;height:100%;object-fit:cover;display:block;transform:scaleX(-1);position:absolute;top:0;left:0}
 #ccanv{position:absolute;top:0;left:0;width:100%;height:100%;transform:scaleX(-1)}
 .cov{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(11,31,58,.88);z-index:5}
 .cov.hidden{display:none}
@@ -190,7 +190,7 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
   </div>
 
   <!-- CAMERA VIEW -->
-  <div class="card" id="cam-card" style="display:none;padding:0;overflow:hidden">
+  <div id="cam-card" style="display:none;background:var(--card);border-radius:var(--r);overflow:hidden;margin-bottom:16px;border:1px solid rgba(255,255,255,.05)">
     <div class="cwrap" id="cwrap">
       <video id="cvid" playsinline autoplay muted></video>
       <canvas id="ccanv"></canvas>
@@ -210,11 +210,11 @@ body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--w);min-he
         <div class="lv"><div class="lvn" id="lv2">–</div><div class="lvl">Sobre red</div></div>
       </div>
     </div>
-    <div style="padding:14px">
-      <div id="cam-inst" style="font-size:13px;color:var(--gr);line-height:1.7;margin-bottom:12px;text-align:center"></div>
-      <button class="bp" id="btn-cal" onclick="calibrate()" disabled>📐 Calibrar (1 toque — luego salta solo)</button>
-      <button class="bo" onclick="stopCam()">Cerrar cámara</button>
+    <div style="padding:10px;display:flex;gap:8px;align-items:center">
+      <button class="bp" id="btn-cal" onclick="calibrate()" disabled style="flex:1;font-size:14px;padding:12px 8px">📐 Calibrar</button>
+      <button onclick="stopCam()" style="background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:10px;padding:12px 14px;color:var(--gr);font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap">✕ Cerrar</button>
     </div>
+    <div id="cam-inst" style="font-size:12px;color:var(--gr);line-height:1.5;padding:0 10px 10px;text-align:center;display:none"></div>
   </div>
 
   <!-- RESULT -->
